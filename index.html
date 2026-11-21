@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sverigekarta – SWEREF 99-zoner</title>
+<style>
+:root{--bg:#f4f6f8;--panel:#fff;--text:#14212b;--muted:#5b6b78;--sea:#dbe9f3;--land:#f7f3e6;--coast:#3b5566;--a:#2a7fba;--b:#d9822b;--line:#d5dde3;--acc:#0b5c8f;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1720;--panel:#17222d;--text:#e6edf3;--muted:#9fb0bd;--sea:#10202c;--land:#243443;--coast:#7fa3bb;--a:#4aa3df;--b:#f0a14e;--line:#2b3a47;--acc:#6bb8ee;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1720;--panel:#17222d;--text:#e6edf3;--muted:#9fb0bd;--sea:#10202c;--land:#243443;--coast:#7fa3bb;--a:#4aa3df;--b:#f0a14e;--line:#2b3a47;--acc:#6bb8ee;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column}
+header{padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+h1{font-size:18px;margin:0}header p{margin:2px 0 0;color:var(--muted);font-size:13px}
+main{flex:1;min-height:0;display:flex;flex-direction:row}
+#mapwrap{flex:1;position:relative;min-width:0;background:var(--sea);touch-action:none}
+svg{width:100%;height:100%;display:block;cursor:grab}
+aside{width:340px;overflow:auto;background:var(--panel);border-left:1px solid var(--line);padding:14px}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:14px 0 8px}
+h2:first-child{margin-top:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:999px;padding:5px 10px;font-size:13px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--c);box-shadow:inset 0 0 0 1px var(--c)}
+.chip i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c);margin-right:6px}
+.btns{display:flex;gap:6px;margin-top:8px}
+.btns button,.zoom button{border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+dt{color:var(--muted)}dd{margin:0;font-variant-numeric:tabular-nums}
+.hint{color:var(--muted);font-size:13px}
+.zoom{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:6px}
+.zoom button{width:38px;height:38px;font-size:20px;background:var(--panel)}
+.zone{fill-opacity:.14;stroke-width:1.2;vector-effect:non-scaling-stroke;transition:fill-opacity .15s}
+.zone.hl{fill-opacity:.38;stroke-width:2.4}
+.land{fill:var(--land);stroke:var(--coast);stroke-width:1.2;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.lbl{font-size:11px;font-weight:600;text-anchor:middle;paint-order:stroke;stroke:var(--sea);stroke-width:3px}
+.city{font-size:11px;fill:var(--text);paint-order:stroke;stroke:var(--land);stroke-width:3px}
+@media (max-width:760px){main{flex-direction:column}aside{width:100%;height:46%;border-left:0;border-top:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<header><h1>Sverigekarta – SWEREF 99</h1><p>Zonindelning och koordinater. Klicka i kartan för att läsa av en punkt.</p></header>
+<main>
+<div id="mapwrap">
+<svg id="svg"><g id="world"><g id="landg"></g><g id="zonesg"></g></g><g id="over"></g></svg>
+<div class="zoom"><button id="zin" aria-label="Zooma in">+</button><button id="zout" aria-label="Zooma ut">−</button><button id="zfit" aria-label="Återställ" style="font-size:15px">⤢</button></div>
+</div>
+<aside>
+<h2>Zoner (lokala system)</h2>
+<div class="chips" id="chips"></div>
+<div class="btns"><button id="all">Visa alla</button><button id="none">Dölj alla</button><button id="setA">Bara 12 00–18 00</button></div>
+<p class="hint">Varje zon är ett band på ±0°45′ kring sin mittmeridian. Zonerna överlappar eftersom de två serierna ligger omlott.</p>
+<h2>Vald punkt</h2>
+<div id="info"><p class="hint">Ingen punkt vald ännu.</p></div>
+<h2>Om systemen</h2>
+<p class="hint">SWEREF 99 TM (EPSG:3006) täcker hela landet med mittmeridian 15°00′. De lokala zonerna (EPSG:3007–3018) ger mindre skalfel för kommunal kartläggning. Bakgrundskartan här är en förenklad kontur.</p>
+</aside>
+</main>
+<script>
+const R=Math.PI/180,A=6378137,F=1/298.257222101,E2=F*(2-F),N=F/(2-F),AH=A/(1+N)*(1+N*N/4+N**4/64);
+function fwd(lat,lon,l0,k0,FE){const p=lat*R,dl=(lon-l0)*R,s=Math.sin(p),c=Math.cos(p);
+const d1=2*N-2/3*N*N-2*N**3,d2=7/3*N*N-8/5*N**3,d3=56/15*N**3;
+const ps=p-s*c*(d1+d2*s*s+d3*s**4);
+const xi=Math.atan(Math.tan(ps)/Math.cos(dl)),et=Math.atanh(Math.cos(ps)*Math.sin(dl));
+const b=[N/2-2/3*N*N+5/16*N**3+41/180*N**4,13/48*N*N-3/5*N**3,61/240*N**3];
+let X=xi,Y=et;b.forEach((v,i)=>{const j=2*(i+1);X+=v*Math.sin(j*xi)*Math.cosh(j*et);Y+=v*Math.cos(j*xi)*Math.sinh(j*et)});
+return{n:k0*AH*X,e:k0*AH*Y+FE}}
+function inv(n,e,l0,k0,FE){let xi=n/(k0*AH),et=(e-FE)/(k0*AH);
+const d=[N/2-2/3*N*N+37/96*N**3,N*N/48+N**3/15,17/480*N**3];
+let X=xi,Y=et;d.forEach((v,i)=>{const j=2*(i+1);X-=v*Math.sin(j*xi)*Math.cosh(j*et);Y-=v*Math.cos(j*xi)*Math.sinh(j*et)});
+const ps=Math.asin(Math.sin(X)/Math.cosh(Y)),dl=Math.atan(Math.sinh(Y)/Math.cos(X));
+const s=Math.sin(ps),c=Math.cos(ps),e4=E2*E2,e6=e4*E2,e8=e4*e4;
+const Aa=E2+e4+e6+e8,B=-(7*e4+17*e6+30*e8)/6,C=(224*e6+889*e8)/120,D=-4279*e8/630;
+const p=ps+s*c*(Aa+B*s*s+C*s**4+D*s**6);return{lat:p/R,lon:l0+dl/R}}
+const tm=(lat,lon)=>{const r=fwd(lat,lon,15,.9996,5e5);return[(r.e-5e5)/1000,-r.n/1000]};
+const SE=[[24.15,65.85],[23.65,66.4],[23.4,67.2],[22.5,68.45],[20.55,69.06],[19,68.4],[18.1,68.5],[17.9,67.9],[16.6,67.6],[16.4,67],[15.4,66.3],[14.5,66.1],[14,65.3],[14.3,64.5],[13.6,64],[12.5,63.5],[12.2,62.3],[12,61.7],[12.7,61],[12.2,60.2],[12.5,59.6],[11.25,59.1],[11.1,58.9],[11.2,58.4],[11.9,57.7],[12.3,57.2],[12.6,56.5],[12.7,56.05],[12.95,55.6],[13.15,55.35],[13.35,55.33],[13.8,55.4],[14.35,55.55],[14.2,56],[14.85,56.15],[15.6,56.15],[16.35,56.65],[16.5,57.25],[16.65,57.75],[16.8,58.5],[18.5,59.3],[18.7,59.75],[18.45,60.35],[17.2,60.7],[17.1,61.7],[17.3,62.4],[18.7,63.3],[20.3,63.8],[21.2,64.7],[22.15,65.6]];
+const GOT=[[18.15,57.85],[18.9,57.9],[19.1,57.3],[18.5,56.95],[18.2,57.4]];
+const OLA=[[16.4,56.2],[16.65,56.2],[17.1,57.35],[16.95,57.35],[16.5,56.7]];
+const CITIES=[["Stockholm",18.07,59.33],["Göteborg",11.97,57.71],["Malmö",13,55.6],["Umeå",20.26,63.83],["Kiruna",20.22,67.86],["Östersund",14.64,63.18],["Karlstad",13.5,59.38],["Visby",18.3,57.64],["Luleå",22.15,65.58]];
+const ZONES=[[12,3007],[13.5,3008],[15,3009],[16.5,3010],[18,3011],[14.25,3012],[15.75,3013],[17.25,3014],[18.75,3015],[20.25,3016],[21.75,3017],[23.25,3018]].map(([c,epsg],i)=>({c,epsg,set:i<5?'A':'B',on:true}));
+const nm=c=>{const d=Math.floor(c),m=Math.round((c-d)*60);return String(d).padStart(2,'0')+' '+String(m).padStart(2,'0')};
+const col=z=>z.set==='A'?'var(--a)':'var(--b)';
+const NS='http://www.w3.org/2000/svg',$=id=>document.getElementById(id);
+const path=pts=>'M'+pts.map(p=>p.map(v=>v.toFixed(1)).join(',')).join('L')+'Z';
+const mk=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p&&p.appendChild(e);return e};
+[SE,GOT,OLA].forEach(poly=>mk('path',{d:path(poly.map(([lo,la])=>tm(la,lo))),class:'land'},$('landg')));
+const over=$('over');
+ZONES.forEach(z=>{
+const ed=(lo)=>{const a=[];for(let la=55;la<=69.6;la+=1.5)a.push(tm(la,lo));return a};
+const pts=ed(z.c-.75).concat(ed(z.c+.75).reverse());
+z.el=mk('path',{d:path(pts),class:'zone',fill:col(z),stroke:col(z)},$('zonesg'));
+const [lx,ly]=tm(z.set==='A'?54.9:69.75,z.c);
+z.lbl=mk('text',{class:'lbl',fill:col(z)},over);z.lbl.textContent=nm(z.c);z.w=[lx,ly];
+const b=document.createElement('button');b.className='chip';b.style.setProperty('--c',col(z));
+b.innerHTML='<i></i>'+nm(z.c)+' · '+z.epsg;b.onclick=()=>{z.on=!z.on;upd()};
+b.onmouseenter=()=>z.el.classList.add('hl');b.onmouseleave=()=>z.el.classList.remove('hl');
+z.btn=b;$('chips').appendChild(b)});
+const cityEls=CITIES.map(([n,lo,la])=>{const g=mk('g',{},over);mk('circle',{r:3,fill:'var(--text)'},g);const t=mk('text',{x:6,y:4,class:'city'},g);t.textContent=n;return{g,w:tm(la,lo)}});
+const mark=mk('g',{display:'none'},over);mk('circle',{r:7,fill:'none',stroke:'#e03a3a','stroke-width':2.5},mark);mk('circle',{r:2,fill:'#e03a3a'},mark);
+let pin=null;
+function upd(){ZONES.forEach(z=>{z.el.style.display=z.on?'':'none';z.lbl.style.display=z.on?'':'none';z.btn.setAttribute('aria-pressed',z.on)})}
+$('all').onclick=()=>{ZONES.forEach(z=>z.on=true);upd()};
+$('none').onclick=()=>{ZONES.forEach(z=>z.on=false);upd()};
+$('setA').onclick=()=>{ZONES.forEach(z=>z.on=z.set==='A');upd()};
+upd();
+const svg=$('svg'),world=$('world');let V={x:0,y:0,k:1},W=1,H=1;
+const allW=SE.map(([lo,la])=>tm(la,lo));
+const bx=[Math.min(...allW.map(p=>p[0])),Math.max(...allW.map(p=>p[0]))],by=[Math.min(...allW.map(p=>p[1])),Math.max(...allW.map(p=>p[1]))];
+function fit(){const r=svg.getBoundingClientRect();W=r.width;H=r.height;const k=Math.min(W/(bx[1]-bx[0]),H/(by[1]-by[0]))*.9;V={k,x:W/2-k*(bx[0]+bx[1])/2,y:H/2-k*(by[0]+by[1])/2};draw()}
+function draw(){world.setAttribute('transform',`translate(${V.x},${V.y}) scale(${V.k})`);
+const P=w=>[w[0]*V.k+V.x,w[1]*V.k+V.y];
+ZONES.forEach(z=>{const p=P(z.w);z.lbl.setAttribute('x',p[0]);z.lbl.setAttribute('y',p[1]+(z.set==='A'?-6:14))});
+cityEls.forEach(c=>{const p=P(c.w);c.g.setAttribute('transform',`translate(${p[0]},${p[1]})`)});
+if(pin){const p=P(pin);mark.setAttribute('transform',`translate(${p[0]},${p[1]})`)}}
+function zoomAt(f,cx,cy){const k=Math.min(Math.max(V.k*f,V.k>0?fitK*.7:0),fitK*40);f=k/V.k;V.x=cx-(cx-V.x)*f;V.y=cy-(cy-V.y)*f;V.k=k;draw()}
+let fitK=1;
+function fitAll(){fit();fitK=V.k}
+addEventListener('resize',fitAll);
+svg.addEventListener('wheel',e=>{e.preventDefault();const r=svg.getBoundingClientRect();zoomAt(Math.exp(-e.deltaY*.0015),e.clientX-r.left,e.clientY-r.top)},{passive:false});
+const ptrs=new Map();let moved=0,lastD=0;
+svg.addEventListener('pointerdown',e=>{svg.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,[e.clientX,e.clientY]);moved=0;lastD=0});
+svg.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;const o=ptrs.get(e.pointerId);ptrs.set(e.pointerId,[e.clientX,e.clientY]);
+if(ptrs.size===1){V.x+=e.clientX-o[0];V.y+=e.clientY-o[1];moved+=Math.abs(e.clientX-o[0])+Math.abs(e.clientY-o[1]);draw()}
+else if(ptrs.size===2){moved+=10;const [a,b]=[...ptrs.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(lastD){const r=svg.getBoundingClientRect();zoomAt(d/lastD,(a[0]+b[0])/2-r.left,(a[1]+b[1])/2-r.top)}lastD=d}});
+svg.addEventListener('pointerup',e=>{const was=ptrs.size===1&&moved<6;ptrs.delete(e.pointerId);lastD=0;if(was){const r=svg.getBoundingClientRect();pick((e.clientX-r.left-V.x)/V.k,(e.clientY-r.top-V.y)/V.k)}});
+svg.addEventListener('pointercancel',e=>ptrs.delete(e.pointerId));
+$('zin').onclick=()=>zoomAt(1.5,W/2,H/2);$('zout').onclick=()=>zoomAt(1/1.5,W/2,H/2);$('zfit').onclick=fit;
+const f=(v,d=0)=>v.toLocaleString('sv-SE',{minimumFractionDigits:d,maximumFractionDigits:d});
+function dm(v){const d=Math.floor(v),m=(v-d)*60;return d+'° '+f(m,2)+'′'}
+function pick(wx,wy){const g=inv(-wy*1000,wx*1000+5e5,15,.9996,5e5);
+if(g.lat<54.5||g.lat>70||g.lon<9||g.lon>26)return;
+pin=[wx,wy];mark.setAttribute('display','');
+const tmc=fwd(g.lat,g.lon,15,.9996,5e5);
+const z=ZONES.slice().sort((a,b)=>Math.abs(g.lon-a.c)-Math.abs(g.lon-b.c))[0];
+const lc=fwd(g.lat,g.lon,z.c,1,150000);
+$('info').innerHTML=`<dl><dt>WGS 84</dt><dd>${f(g.lat,5)}° N, ${f(g.lon,5)}° E</dd>
+<dt>Grader/min</dt><dd>${dm(g.lat)} N, ${dm(g.lon)} E</dd>
+<dt>SWEREF 99 TM</dt><dd>N ${f(tmc.n)} m<br>E ${f(tmc.e)} m</dd>
+<dt>Närmaste zon</dt><dd>${nm(z.c)} (EPSG:${z.epsg})</dd>
+<dt>I zonen</dt><dd>N ${f(lc.n)} m<br>E ${f(lc.e)} m</dd></dl>`;
+ZONES.forEach(q=>q.el.classList.toggle('hl',q===z));draw()}
+fitAll();
+</script>
+</body>
+</html>
