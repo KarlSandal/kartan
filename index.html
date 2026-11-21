@@ -25,16 +25,12 @@ h2{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--mute
 .sw input:checked+i{background:#14507a;border-color:var(--acc)}
 .sw input:checked+i:after{left:17px;background:#fff}
 .sl{padding-left:2px}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
-.chip{border:1px solid var(--line);background:var(--p2);color:var(--text);border-radius:99px;padding:4px 10px;font-size:12px;cursor:pointer}
-.chip i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:6px}
-.chip[aria-pressed="false"]{opacity:.4}
-.chip.sel{border-color:var(--c);box-shadow:0 0 10px -2px var(--c)}
+.zr{display:flex;align-items:center;gap:8px;padding:3px 0}.zr .nm{flex:1;cursor:pointer;font-size:13px}.zr .nm i{display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--c);margin-right:8px}.zr .nm.sel{color:#fff;font-weight:700;text-shadow:0 0 10px var(--c)}.zr small{color:var(--muted);font-size:11px}
 dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:13px}
 dt{color:var(--muted)}dd{margin:0;font-variant-numeric:tabular-nums}
 .hint{color:var(--muted);font-size:12px;margin:4px 0}
 #cur{position:absolute;left:10px;bottom:28px;background:#0d151dcc;border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:12px;font-variant-numeric:tabular-nums;pointer-events:none;z-index:2}
-.zl{background:var(--c);color:#06121b;font-weight:700;font-size:12px;padding:3px 9px;border-radius:99px;box-shadow:0 0 14px var(--c);white-space:nowrap}
+.zl{background:#0b1218cc;color:var(--c);border:1px solid var(--c);font-weight:700;font-size:11px;padding:1px 7px;border-radius:99px;white-space:nowrap;pointer-events:none}.zl.big{background:var(--c);color:#06121b;font-size:12px;padding:3px 9px;box-shadow:0 0 16px var(--c)}
 .pin{width:14px;height:14px;border-radius:50%;border:2px solid #ff5a5a;box-shadow:0 0 10px #ff5a5a;background:#ff5a5a44}
 .maplibregl-ctrl-attrib{background:#0d151dcc!important;color:var(--muted)!important}.maplibregl-ctrl-attrib a{color:var(--muted)!important}
 @media (max-width:760px){body{flex-direction:column}#mapw{flex:none;height:56%}aside{width:100%;flex:1;border-left:0;border-top:1px solid var(--line)}#cur{display:none}}
@@ -56,12 +52,16 @@ dt{color:var(--muted)}dd{margin:0;font-variant-numeric:tabular-nums}
 <h2>Geografi</h2>
 <div class="row"><span>Sverigekontur</span><label class="sw"><input type="checkbox" data-l="se-glow,se-line" checked><i></i></label></div>
 <div class="row"><span>Sjöar</span><label class="sw"><input type="checkbox" data-l="lakes-fill,lakes-line" checked><i></i></label></div>
+<div class="row"><span>Kommungränser</span><label class="sw"><input type="checkbox" data-l="komm-line"><i></i></label></div>
 
-<h2>Koordinatsystem</h2>
-<div class="row"><span>SWEREF 99-zoner</span><label class="sw"><input type="checkbox" id="zon" checked><i></i></label></div>
-<div class="chips" id="chips"></div>
+<h2>SWEREF 99-zoner (förslag)</h2>
+<div class="row"><span>Alla zoner</span><label class="sw"><input type="checkbox" id="zon" checked><i></i></label></div>
+<div id="zrows"></div>
+<div class="row" style="margin-top:6px"><span>Gräns syd/nord: <b id="splv">62,5</b>° N</span></div>
+<div class="row sl"><input type="range" min="60" max="65" step="0.1" value="62.5" id="spl" aria-label="Gräns mellan sydlig och nordlig zonserie"></div>
+<p class="hint">Beräknat förslag, inte verifierat mot kommunernas faktiska val. Zonerna 12 00–18 00 används söder om gränsen och 14 15–23 15 norr om den. Klicka på ett zonnamn eller i kartan för att lyfta fram zonen.</p>
+<div class="row"><span>Mittmeridianer</span><label class="sw"><input type="checkbox" data-l="zcm"><i></i></label></div>
 <div class="row"><span>Rutnät SWEREF 99 TM (100 km)</span><label class="sw"><input type="checkbox" data-l="grid"><i></i></label></div>
-<p class="hint">Klicka på en zon eller i kartan för att lyfta fram zonen. Banden är teoretiska (±0°45′), kommunernas faktiska zoner kommer i nästa steg.</p>
 
 <h2>Vald punkt</h2>
 <div id="info"><p class="hint">Ingen punkt vald ännu.</p></div>
@@ -71,6 +71,7 @@ dt{color:var(--muted)}dd{margin:0;font-variant-numeric:tabular-nums}
 </aside>
 <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@7.1.0/turf.min.js"></script>
 <script>
 const R=Math.PI/180,A=6378137,F=1/298.257222101,E2=F*(2-F),N=F/(2-F),AH=A/(1+N)*(1+N*N/4+N**4/64);
 function fwd(lat,lon,l0,k0,FE){const p=lat*R,dl=(lon-l0)*R,s=Math.sin(p),c=Math.cos(p);
@@ -88,31 +89,32 @@ const f=(v,d=0)=>v.toLocaleString('sv-SE',{minimumFractionDigits:d,maximumFracti
 const dm=v=>{const d=Math.floor(v);return d+'° '+f((v-d)*60,2)+'′'};
 const nm=c=>{const d=Math.floor(c),m=Math.round((c-d)*60);return String(d).padStart(2,'0')+' '+String(m).padStart(2,'0')};
 const $=id=>document.getElementById(id);
-const ZONES=[[12,3007],[13.5,3008],[15,3009],[16.5,3010],[18,3011],[14.25,3012],[15.75,3013],[17.25,3014],[18.75,3015],[20.25,3016],[21.75,3017],[23.25,3018]].map(([c,epsg],i)=>({c,epsg,set:i<5?'A':'B',on:true,col:i<5?'#38a8f0':'#f2a24a'}));
+const COL={3007:'#e5484d',3008:'#f2a24a',3009:'#2fd0c3',3010:'#3b82f6',3011:'#ff6fae',3012:'#9be15d',3013:'#c25bf0',3014:'#f5d547',3015:'#7dd3fc',3016:'#4ade80',3017:'#f0abfc',3018:'#fda4af'};
+const ZONES=[[12,3007],[13.5,3008],[15,3009],[16.5,3010],[18,3011],[14.25,3012],[15.75,3013],[17.25,3014],[18.75,3015],[20.25,3016],[21.75,3017],[23.25,3018]].map(([c,epsg],i)=>({c,epsg,set:i<5?'A':'B',on:true,col:COL[epsg],n:0}));
 const S0=54.5,N0=70.5,EMPTY={type:'FeatureCollection',features:[]};
 const fc=a=>({type:'FeatureCollection',features:a});
-const bands=fc(ZONES.map(z=>({type:'Feature',properties:{id:z.epsg,set:z.set},geometry:{type:'Polygon',coordinates:[[[z.c-.75,S0],[z.c+.75,S0],[z.c+.75,N0],[z.c-.75,N0],[z.c-.75,S0]]]}})));
-const cms=fc(ZONES.map(z=>({type:'Feature',properties:{id:z.epsg,set:z.set},geometry:{type:'LineString',coordinates:[[z.c,S0],[z.c,N0]]}})));
+const cms=fc(ZONES.map(z=>({type:'Feature',properties:{id:z.epsg,col:z.col},geometry:{type:'LineString',coordinates:[[z.c,S0],[z.c,N0]]}})));
 const gl=[];
 for(let e=2e5;e<=9e5;e+=1e5){const l=[];for(let n=6.1e6;n<=7.7e6;n+=5e4)l.push(inv(n,e));gl.push({type:'Feature',properties:{},geometry:{type:'LineString',coordinates:l}})}
 for(let n=6.1e6;n<=7.7e6;n+=1e5){const l=[];for(let e=2e5;e<=9e5;e+=5e4)l.push(inv(n,e));gl.push({type:'Feature',properties:{},geometry:{type:'LineString',coordinates:l}})}
-const colExpr=['match',['get','set'],'A','#38a8f0','#f2a24a'];
 const map=new maplibregl.Map({container:'map',bounds:[[10.3,55],[24.7,69.4]],fitBoundsOptions:{padding:20},minZoom:3,maxZoom:14,attributionControl:{compact:true},
 style:{version:8,sources:{
 dem:{type:'raster-dem',tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],encoding:'terrarium',tileSize:256,maxzoom:14,attribution:'Terräng: Mapzen/AWS Terrain Tiles'},
 osm:{type:'raster',tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,maxzoom:19,attribution:'&copy; OpenStreetMap-bidragsgivare'},
 se:{type:'geojson',data:EMPTY,attribution:'Gränser och sjöar: Natural Earth'},mask:{type:'geojson',data:EMPTY},lakes:{type:'geojson',data:EMPTY},
-zb:{type:'geojson',data:bands},zc:{type:'geojson',data:cms},grid:{type:'geojson',data:fc(gl)}},
+komm:{type:'geojson',data:EMPTY,attribution:'Kommuner: okfse/Valmyndigheten'},zu:{type:'geojson',data:EMPTY},zc:{type:'geojson',data:cms},grid:{type:'geojson',data:fc(gl)}},
 layers:[
 {id:'bg',type:'background',paint:{'background-color':'#14212d'}},
 {id:'hill',type:'hillshade',source:'dem',paint:{'hillshade-exaggeration':.55,'hillshade-shadow-color':'#02060b','hillshade-highlight-color':'#9bc0da','hillshade-accent-color':'#0a141d','hillshade-illumination-direction':335}},
 {id:'lakes-fill',type:'fill',source:'lakes',paint:{'fill-color':'#0a2a44','fill-opacity':.95}},
 {id:'lakes-line',type:'line',source:'lakes',paint:{'line-color':'#3fa7e8','line-width':1,'line-opacity':.8}},
 {id:'grid',type:'line',source:'grid',layout:{visibility:'none'},paint:{'line-color':'#7fa6c2','line-width':.8,'line-opacity':.35}},
-{id:'zfill',type:'fill',source:'zb',paint:{'fill-color':colExpr,'fill-opacity':.14}},
-{id:'zline',type:'line',source:'zb',paint:{'line-color':colExpr,'line-width':1,'line-opacity':.8}},
-{id:'zglow',type:'line',source:'zb',filter:['==',['get','id'],-1],paint:{'line-color':colExpr,'line-width':12,'line-blur':10,'line-opacity':.9}},
-{id:'zcm',type:'line',source:'zc',paint:{'line-color':colExpr,'line-width':1.4,'line-dasharray':[3,3],'line-opacity':.9}},
+...ZONES.map(z=>({id:'zk'+z.epsg,type:'fill',source:'komm',filter:['==',['get','zon'],z.epsg],paint:{'fill-color':z.col,'fill-opacity':.34}})),
+{id:'khit',type:'fill',source:'komm',paint:{'fill-color':'#000','fill-opacity':0}},
+{id:'komm-line',type:'line',source:'komm',layout:{visibility:'none'},paint:{'line-color':'#a9c1d3','line-width':.6,'line-opacity':.55}},
+{id:'zline',type:'line',source:'zu',paint:{'line-color':['get','col'],'line-width':1,'line-opacity':.8}},
+{id:'zglow',type:'line',source:'zu',filter:['==',['get','id'],-1],paint:{'line-color':['get','col'],'line-width':12,'line-blur':10,'line-opacity':.9}},
+{id:'zcm',type:'line',source:'zc',layout:{visibility:'none'},paint:{'line-color':['get','col'],'line-width':1.4,'line-dasharray':[3,3],'line-opacity':.9}},
 {id:'mask',type:'fill',source:'mask',paint:{'fill-color':'#05080c','fill-opacity':1}},
 {id:'se-glow',type:'line',source:'se',paint:{'line-color':'#38a8f0','line-width':7,'line-blur':7,'line-opacity':.55}},
 {id:'se-line',type:'line',source:'se',paint:{'line-color':'#8fd0f7','line-width':1.2}},
@@ -120,37 +122,56 @@ layers:[
 map.addControl(new maplibregl.NavigationControl({visualizePitch:true}),'top-left');
 map.addControl(new maplibregl.ScaleControl({unit:'metric'}),'bottom-right');
 
-let sel=null,master=true,label=null,pinM=null;
+let sel=null,master=true,split=62.5,KOMM=[],marks=[],pinM=null;
+const nameOf=p=>p.kom_namn||p.name||p.kommun||p.namn||Object.values(p).find(v=>typeof v==='string'&&/[A-Za-zÅÄÖåäö]{3}/.test(v))||'';
+const codeOf=p=>{const v=Object.values(p).find(v=>/^\d{4}$/.test(String(v)));return v?String(v):''};
+function cen(g){const ps=g.type==='Polygon'?[g.coordinates]:g.coordinates;const r=ps.map(p=>p[0]).sort((a,b)=>b.length-a.length)[0];return[r.reduce((s,p)=>s+p[0],0)/r.length,r.reduce((s,p)=>s+p[1],0)/r.length]}
+function zoneFor(f){if(/^Gotland/.test(f.properties.kn))return 3015;
+const ser=ZONES.filter(z=>z.set===(f._c[1]<split?'A':'B'));return ser.sort((a,b)=>Math.abs(f._c[0]-a.c)-Math.abs(f._c[0]-b.c))[0].epsg}
 function upd(){
-const vis=master?ZONES.filter(z=>z.on).map(z=>z.epsg):[],flt=['in',['get','id'],['literal',vis]],id=sel&&vis.includes(sel)?sel:-1,isSel=['==',['get','id'],id];
-['zfill','zline','zcm'].forEach(l=>map.setFilter(l,flt));
-map.setFilter('zglow',['==',['get','id'],id]);
-map.setPaintProperty('zfill','fill-opacity',['case',isSel,.42,id>0?.05:.14]);
-map.setPaintProperty('zline','line-width',['case',isSel,3,1]);
-map.setPaintProperty('zline','line-opacity',['case',isSel,1,id>0?.3:.8]);
-ZONES.forEach(z=>{z.btn.setAttribute('aria-pressed',z.on);z.btn.classList.toggle('sel',z.epsg===id)});
-if(label){label.remove();label=null}
-const z=ZONES.find(z=>z.epsg===id);
-if(z){const el=document.createElement('div');el.className='zl';el.style.setProperty('--c',z.col);el.textContent='Zon '+nm(z.c)+' · EPSG:'+z.epsg;label=new maplibregl.Marker({element:el}).setLngLat([z.c,69.5]).addTo(map)}}
-ZONES.forEach(z=>{const b=document.createElement('button');b.className='chip';b.style.setProperty('--c',z.col);b.innerHTML='<i></i>'+nm(z.c)+' · '+z.epsg;
-b.onclick=()=>{if(!z.on)z.on=true;sel=sel===z.epsg?null:z.epsg;upd()};
-b.oncontextmenu=e=>{e.preventDefault();z.on=!z.on;upd()};z.btn=b;$('chips').appendChild(b)});
+const vis=master?ZONES.filter(z=>z.on).map(z=>z.epsg):[],id=sel&&vis.includes(sel)?sel:-1,isSel=['==',['get','id'],id];
+ZONES.forEach(z=>{map.setLayoutProperty('zk'+z.epsg,'visibility',vis.includes(z.epsg)?'visible':'none');
+map.setPaintProperty('zk'+z.epsg,'fill-opacity',z.epsg===id?.62:id>0?.1:.34);
+z.nm.classList.toggle('sel',z.epsg===id);z.sw.checked=z.on;z.cnt.textContent=z.n+' kommuner'});
+map.setFilter('zline',['in',['get','id'],['literal',vis]]);map.setFilter('zglow',['==',['get','id'],id]);
+map.setPaintProperty('zline','line-width',['case',isSel,3,1]);map.setPaintProperty('zline','line-opacity',['case',isSel,1,id>0?.3:.8]);
+marks.forEach(m=>{m.el.style.display=vis.includes(m.z.epsg)?'':'none';const b=m.z.epsg===id;m.el.classList.toggle('big',b);m.el.textContent=b?'Zon '+nm(m.z.c)+' · EPSG:'+m.z.epsg:nm(m.z.c)})}
+ZONES.forEach(z=>{const r=document.createElement('div');r.className='zr';r.style.setProperty('--c',z.col);
+r.innerHTML=`<label class="sw"><input type="checkbox" checked><i></i></label><span class="nm"><i></i>${nm(z.c)} · ${z.epsg}</span><small></small>`;
+z.sw=r.querySelector('input');z.nm=r.querySelector('.nm');z.cnt=r.querySelector('small');
+z.sw.onchange=()=>{z.on=z.sw.checked;upd()};z.nm.onclick=()=>{z.on=true;sel=sel===z.epsg?null:z.epsg;upd()};$('zrows').appendChild(r)});
 $('zon').onchange=e=>{master=e.target.checked;upd()};
-
+$('spl').oninput=e=>$('splv').textContent=f(+e.target.value,1);
+$('spl').onchange=e=>{split=+e.target.value;recompute()};
+function recompute(){
+ZONES.forEach(z=>z.n=0);
+KOMM.forEach(k=>{k.properties.zon=zoneFor(k);ZONES.find(z=>z.epsg===k.properties.zon).n++});
+map.getSource('komm').setData(fc(KOMM));
+marks.forEach(m=>m.m.remove());marks=[];const U=[];
+ZONES.forEach(z=>{const fs=KOMM.filter(k=>k.properties.zon===z.epsg);if(!fs.length)return;
+try{const u=fs.length>1?turf.union(turf.featureCollection(fs.map(k=>({type:'Feature',properties:{},geometry:k.geometry})))):fs[0];
+u.properties={id:z.epsg,col:z.col};U.push(u);
+const el=document.createElement('div');el.className='zl';el.style.setProperty('--c',z.col);
+marks.push({z,el,m:new maplibregl.Marker({element:el}).setLngLat(turf.pointOnFeature(u).geometry.coordinates).addTo(map)})}catch(err){console.warn('union',z.epsg,err)}});
+map.getSource('zu').setData(fc(U));upd()}
 document.querySelectorAll('[data-l]').forEach(i=>i.onchange=()=>i.dataset.l.split(',').forEach(l=>map.setLayoutProperty(l,'visibility',i.checked?'visible':'none')));
 document.querySelectorAll('[data-s]').forEach(i=>i.oninput=()=>{const v=i.value/100;i.dataset.s==='hill'?map.setPaintProperty('hill','hillshade-exaggeration',v):map.setPaintProperty('osm','raster-opacity',v)});
 $('t3d').onchange=e=>{if(e.target.checked){map.setTerrain({source:'dem',exaggeration:1.6});map.easeTo({pitch:58,duration:900})}else{map.setTerrain(null);map.easeTo({pitch:0,bearing:0,duration:700})}};
 
-function pick(lat,lon){
-const t=fwd(lat,lon,15,.9996,5e5),z=ZONES.slice().sort((a,b)=>Math.abs(lon-a.c)-Math.abs(lon-b.c))[0],l=fwd(lat,lon,z.c,1,15e4);
+function pick(lat,lon,k){
+const t=fwd(lat,lon,15,.9996,5e5),z=(k&&ZONES.find(z=>z.epsg===k.zon))||ZONES.slice().sort((a,b)=>Math.abs(lon-a.c)-Math.abs(lon-b.c))[0],l=fwd(lat,lon,z.c,1,15e4);
 if(!pinM){const el=document.createElement('div');el.className='pin';pinM=new maplibregl.Marker({element:el})}
 pinM.setLngLat([lon,lat]).addTo(map);
-$('info').innerHTML=`<dl><dt>WGS 84</dt><dd>${f(lat,5)}° N, ${f(lon,5)}° E</dd><dt>Grader/min</dt><dd>${dm(lat)} N, ${dm(lon)} E</dd><dt>SWEREF 99 TM</dt><dd>N ${f(t.n)} m<br>E ${f(t.e)} m</dd><dt>Närmaste zon</dt><dd>${nm(z.c)} (EPSG:${z.epsg})</dd><dt>I zonen</dt><dd>N ${f(l.n)} m<br>E ${f(l.e)} m</dd></dl>`;
+$('info').innerHTML=`<dl>${k?`<dt>Kommun</dt><dd>${k.kn}</dd>`:''}<dt>WGS 84</dt><dd>${f(lat,5)}° N, ${f(lon,5)}° E</dd><dt>Grader/min</dt><dd>${dm(lat)} N, ${dm(lon)} E</dd><dt>SWEREF 99 TM</dt><dd>N ${f(t.n)} m<br>E ${f(t.e)} m</dd><dt>${k?'Zon (förslag)':'Närmaste zon'}</dt><dd>${nm(z.c)} (EPSG:${z.epsg})</dd><dt>I zonen</dt><dd>N ${f(l.n)} m<br>E ${f(l.e)} m</dd></dl>`;
 z.on=true;sel=z.epsg;upd()}
-map.on('click',e=>pick(e.lngLat.lat,e.lngLat.lng));
+map.on('click',e=>{const k=map.queryRenderedFeatures(e.point,{layers:['khit']})[0];pick(e.lngLat.lat,e.lngLat.lng,k&&k.properties)});
 map.on('mousemove',e=>{const t=fwd(e.lngLat.lat,e.lngLat.lng,15,.9996,5e5);$('cur').textContent=`SWEREF 99 TM  N ${f(t.n)}  E ${f(t.e)}   |   ${f(e.lngLat.lat,4)}° N ${f(e.lngLat.lng,4)}° E`});
 
 map.on('load',async()=>{upd();let msg=[];
+try{const j=await (await fetch('https://raw.githubusercontent.com/okfse/sweden-geojson/master/swedish_municipalities.geojson')).json();
+const c0=JSON.stringify(j.features[0].geometry.coordinates).match(/-?\d+\.?\d*/)[0];if(Math.abs(+c0)>180)throw 0;
+KOMM=j.features.filter(k=>k.geometry).map(k=>{k.properties=k.properties||{};k.properties.kn=nameOf(k.properties);k.properties.kk=codeOf(k.properties);k._c=cen(k.geometry);return k});recompute()}
+catch(err){msg.push('kommuner')}
 try{const topo=await (await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json')).json();
 const se=topojson.feature(topo,topo.objects.countries).features.find(x=>x.properties.name==='Sweden');
 const polys=se.geometry.type==='Polygon'?[se.geometry.coordinates]:se.geometry.coordinates;
