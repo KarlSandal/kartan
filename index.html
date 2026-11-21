@@ -4,107 +4,163 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sverigekarta – SWEREF 99</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <style>
-:root{--bg:#f4f6f8;--panel:#fff;--text:#14212b;--muted:#5b6b78;--line:#d5dde3;--a:#1f78b4;--b:#e07b20}
-@media (prefers-color-scheme:dark){:root{--bg:#0f1720;--panel:#17222d;--text:#e6edf3;--muted:#9fb0bd;--line:#2b3a47;--a:#4aa3df;--b:#f0a14e;color-scheme:dark}}
+:root{--bg:#0a0f15;--panel:#111a23;--p2:#16222e;--line:#233341;--text:#e3edf5;--muted:#8da2b3;--acc:#38a8f0;--b:#f2a24a;color-scheme:dark}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
-body{background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-header{padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
-h1{font-size:18px;margin:0}header p{margin:2px 0 0;color:var(--muted);font-size:13px}
-main{flex:1;min-height:0;display:flex}
-#map{flex:1;min-width:0;background:#cfe3ef}
-aside{width:340px;overflow:auto;background:var(--panel);border-left:1px solid var(--line);padding:14px}
-h2{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:16px 0 8px}
-h2:first-child{margin-top:0}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:999px;padding:5px 10px;font-size:13px;cursor:pointer}
-.chip[aria-pressed="true"]{border-color:var(--c);box-shadow:inset 0 0 0 1px var(--c)}
-.chip i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c);margin-right:6px}
-.btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.btns button{border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px}
-dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+body{background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+#mapw{flex:1;position:relative;min-width:0}
+#map{position:absolute;inset:0}
+aside{width:330px;overflow:auto;background:var(--panel);border-left:1px solid var(--line);padding:14px 14px 24px}
+h1{font-size:16px;margin:0 0 2px;letter-spacing:.02em}
+.sub{color:var(--muted);font-size:12px;margin:0 0 12px}
+h2{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:18px 0 6px;padding-top:12px;border-top:1px solid var(--line)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0}
+.row input[type=range]{width:100%;accent-color:var(--acc)}
+.sw{position:relative;width:34px;height:19px;flex:none}
+.sw input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;z-index:1}
+.sw i{position:absolute;inset:0;background:var(--p2);border:1px solid var(--line);border-radius:99px;transition:.15s}
+.sw i:after{content:"";position:absolute;left:2px;top:2px;width:13px;height:13px;border-radius:50%;background:var(--muted);transition:.15s}
+.sw input:checked+i{background:#14507a;border-color:var(--acc)}
+.sw input:checked+i:after{left:17px;background:#fff}
+.sl{padding-left:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.chip{border:1px solid var(--line);background:var(--p2);color:var(--text);border-radius:99px;padding:4px 10px;font-size:12px;cursor:pointer}
+.chip i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:6px}
+.chip[aria-pressed="false"]{opacity:.4}
+.chip.sel{border-color:var(--c);box-shadow:0 0 10px -2px var(--c)}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:13px}
 dt{color:var(--muted)}dd{margin:0;font-variant-numeric:tabular-nums}
-.hint{color:var(--muted);font-size:13px}
-.zl{font:600 11px system-ui,sans-serif;color:var(--c);text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;white-space:nowrap;text-align:center}
-.cur{position:absolute;left:10px;bottom:22px;z-index:500;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:12px;font-variant-numeric:tabular-nums;pointer-events:none}
-@media (max-width:760px){main{flex-direction:column}aside{width:100%;height:42%;border-left:0;border-top:1px solid var(--line)}.cur{display:none}}
+.hint{color:var(--muted);font-size:12px;margin:4px 0}
+#cur{position:absolute;left:10px;bottom:28px;background:#0d151dcc;border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:12px;font-variant-numeric:tabular-nums;pointer-events:none;z-index:2}
+.zl{background:var(--c);color:#06121b;font-weight:700;font-size:12px;padding:3px 9px;border-radius:99px;box-shadow:0 0 14px var(--c);white-space:nowrap}
+.pin{width:14px;height:14px;border-radius:50%;border:2px solid #ff5a5a;box-shadow:0 0 10px #ff5a5a;background:#ff5a5a44}
+.maplibregl-ctrl-attrib{background:#0d151dcc!important;color:var(--muted)!important}.maplibregl-ctrl-attrib a{color:var(--muted)!important}
+@media (max-width:760px){body{flex-direction:column}#mapw{flex:none;height:56%}aside{width:100%;flex:1;border-left:0;border-top:1px solid var(--line)}#cur{display:none}}
 </style>
 </head>
 <body>
-<header><h1>Sverigekarta – SWEREF 99</h1><p>Zonindelning och koordinater. Klicka i kartan för att läsa av en punkt.</p></header>
-<main>
-<div style="position:relative;flex:1;min-width:0;display:flex"><div id="map"></div><div class="cur" id="cur">Flytta musen över kartan</div></div>
+<div id="mapw"><div id="map"></div><div id="cur">Flytta musen över kartan</div></div>
 <aside>
-<h2>Zoner (lokala system)</h2>
+<h1>Sverigekarta</h1>
+<p class="sub" id="status">Laddar data…</p>
+
+<h2>Bakgrund</h2>
+<div class="row"><span>Relief (skuggning)</span><label class="sw"><input type="checkbox" data-l="hill" checked><i></i></label></div>
+<div class="row sl"><input type="range" min="0" max="100" value="55" data-s="hill" aria-label="Reliefstyrka"></div>
+<div class="row"><span>3D-terräng</span><label class="sw"><input type="checkbox" id="t3d"><i></i></label></div>
+<div class="row"><span>OpenStreetMap (kontroll)</span><label class="sw"><input type="checkbox" data-l="osm"><i></i></label></div>
+<div class="row sl"><input type="range" min="10" max="100" value="55" data-s="osm" aria-label="OSM-genomskinlighet"></div>
+
+<h2>Geografi</h2>
+<div class="row"><span>Sverigekontur</span><label class="sw"><input type="checkbox" data-l="se-glow,se-line" checked><i></i></label></div>
+<div class="row"><span>Sjöar</span><label class="sw"><input type="checkbox" data-l="lakes-fill,lakes-line" checked><i></i></label></div>
+
+<h2>Koordinatsystem</h2>
+<div class="row"><span>SWEREF 99-zoner</span><label class="sw"><input type="checkbox" id="zon" checked><i></i></label></div>
 <div class="chips" id="chips"></div>
-<div class="btns"><button id="all">Visa alla</button><button id="none">Dölj alla</button><button id="setA">Bara 12 00–18 00</button></div>
-<p class="hint">Banden är ±0°45′ kring varje mittmeridian (heldragen linje = zonens mittmeridian). Det är den teoretiska närmaste zonen. Kommunernas faktiska zon läggs till senare.</p>
+<div class="row"><span>Rutnät SWEREF 99 TM (100 km)</span><label class="sw"><input type="checkbox" data-l="grid"><i></i></label></div>
+<p class="hint">Klicka på en zon eller i kartan för att lyfta fram zonen. Banden är teoretiska (±0°45′), kommunernas faktiska zoner kommer i nästa steg.</p>
+
 <h2>Vald punkt</h2>
 <div id="info"><p class="hint">Ingen punkt vald ännu.</p></div>
-<div class="btns"><button id="loc">Hitta min position</button></div>
+
+<h2>Data</h2>
+<p class="hint">Datakatalogens lager kommer här.</p>
 </aside>
-</main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
 <script>
 const R=Math.PI/180,A=6378137,F=1/298.257222101,E2=F*(2-F),N=F/(2-F),AH=A/(1+N)*(1+N*N/4+N**4/64);
 function fwd(lat,lon,l0,k0,FE){const p=lat*R,dl=(lon-l0)*R,s=Math.sin(p),c=Math.cos(p);
-const d1=2*N-2/3*N*N-2*N**3,d2=7/3*N*N-8/5*N**3,d3=56/15*N**3;
-const ps=p-s*c*(d1+d2*s*s+d3*s**4);
+const d1=2*N-2/3*N*N-2*N**3,d2=7/3*N*N-8/5*N**3,d3=56/15*N**3,ps=p-s*c*(d1+d2*s*s+d3*s**4);
 const xi=Math.atan(Math.tan(ps)/Math.cos(dl)),et=Math.atanh(Math.cos(ps)*Math.sin(dl));
 const b=[N/2-2/3*N*N+5/16*N**3+41/180*N**4,13/48*N*N-3/5*N**3,61/240*N**3];
 let X=xi,Y=et;b.forEach((v,i)=>{const j=2*(i+1);X+=v*Math.sin(j*xi)*Math.cosh(j*et);Y+=v*Math.cos(j*xi)*Math.sinh(j*et)});
 return{n:k0*AH*X,e:k0*AH*Y+FE}}
+function inv(n,e){const k0=.9996,xi=n/(k0*AH),et=(e-5e5)/(k0*AH),d=[N/2-2/3*N*N+37/96*N**3,N*N/48+N**3/15,17/480*N**3];
+let X=xi,Y=et;d.forEach((v,i)=>{const j=2*(i+1);X-=v*Math.sin(j*xi)*Math.cosh(j*et);Y-=v*Math.cos(j*xi)*Math.sinh(j*et)});
+const ps=Math.asin(Math.sin(X)/Math.cosh(Y)),dl=Math.atan(Math.sinh(Y)/Math.cos(X)),s=Math.sin(ps),c=Math.cos(ps),e4=E2*E2,e6=e4*E2,e8=e4*e4;
+const p=ps+s*c*(E2+e4+e6+e8-(7*e4+17*e6+30*e8)/6*s*s+(224*e6+889*e8)/120*s**4-4279*e8/630*s**6);
+return[15+dl/R,p/R]}
 const f=(v,d=0)=>v.toLocaleString('sv-SE',{minimumFractionDigits:d,maximumFractionDigits:d});
 const dm=v=>{const d=Math.floor(v);return d+'° '+f((v-d)*60,2)+'′'};
 const nm=c=>{const d=Math.floor(c),m=Math.round((c-d)*60);return String(d).padStart(2,'0')+' '+String(m).padStart(2,'0')};
-const ZONES=[[12,3007],[13.5,3008],[15,3009],[16.5,3010],[18,3011],[14.25,3012],[15.75,3013],[17.25,3014],[18.75,3015],[20.25,3016],[21.75,3017],[23.25,3018]].map(([c,epsg],i)=>({c,epsg,set:i<5?'A':'B',on:true}));
-const colOf=z=>getComputedStyle(document.documentElement).getPropertyValue(z.set==='A'?'--a':'--b').trim();
+const $=id=>document.getElementById(id);
+const ZONES=[[12,3007],[13.5,3008],[15,3009],[16.5,3010],[18,3011],[14.25,3012],[15.75,3013],[17.25,3014],[18.75,3015],[20.25,3016],[21.75,3017],[23.25,3018]].map(([c,epsg],i)=>({c,epsg,set:i<5?'A':'B',on:true,col:i<5?'#38a8f0':'#f2a24a'}));
+const S0=54.5,N0=70.5,EMPTY={type:'FeatureCollection',features:[]};
+const fc=a=>({type:'FeatureCollection',features:a});
+const bands=fc(ZONES.map(z=>({type:'Feature',properties:{id:z.epsg,set:z.set},geometry:{type:'Polygon',coordinates:[[[z.c-.75,S0],[z.c+.75,S0],[z.c+.75,N0],[z.c-.75,N0],[z.c-.75,S0]]]}})));
+const cms=fc(ZONES.map(z=>({type:'Feature',properties:{id:z.epsg,set:z.set},geometry:{type:'LineString',coordinates:[[z.c,S0],[z.c,N0]]}})));
+const gl=[];
+for(let e=2e5;e<=9e5;e+=1e5){const l=[];for(let n=6.1e6;n<=7.7e6;n+=5e4)l.push(inv(n,e));gl.push({type:'Feature',properties:{},geometry:{type:'LineString',coordinates:l}})}
+for(let n=6.1e6;n<=7.7e6;n+=1e5){const l=[];for(let e=2e5;e<=9e5;e+=5e4)l.push(inv(n,e));gl.push({type:'Feature',properties:{},geometry:{type:'LineString',coordinates:l}})}
+const colExpr=['match',['get','set'],'A','#38a8f0','#f2a24a'];
+const map=new maplibregl.Map({container:'map',bounds:[[10.3,55],[24.7,69.4]],fitBoundsOptions:{padding:20},minZoom:3,maxZoom:14,attributionControl:{compact:true},
+style:{version:8,sources:{
+dem:{type:'raster-dem',tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],encoding:'terrarium',tileSize:256,maxzoom:14,attribution:'Terräng: Mapzen/AWS Terrain Tiles'},
+osm:{type:'raster',tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,maxzoom:19,attribution:'&copy; OpenStreetMap-bidragsgivare'},
+se:{type:'geojson',data:EMPTY,attribution:'Gränser och sjöar: Natural Earth'},mask:{type:'geojson',data:EMPTY},lakes:{type:'geojson',data:EMPTY},
+zb:{type:'geojson',data:bands},zc:{type:'geojson',data:cms},grid:{type:'geojson',data:fc(gl)}},
+layers:[
+{id:'bg',type:'background',paint:{'background-color':'#14212d'}},
+{id:'hill',type:'hillshade',source:'dem',paint:{'hillshade-exaggeration':.55,'hillshade-shadow-color':'#02060b','hillshade-highlight-color':'#9bc0da','hillshade-accent-color':'#0a141d','hillshade-illumination-direction':335}},
+{id:'lakes-fill',type:'fill',source:'lakes',paint:{'fill-color':'#0a2a44','fill-opacity':.95}},
+{id:'lakes-line',type:'line',source:'lakes',paint:{'line-color':'#3fa7e8','line-width':1,'line-opacity':.8}},
+{id:'grid',type:'line',source:'grid',layout:{visibility:'none'},paint:{'line-color':'#7fa6c2','line-width':.8,'line-opacity':.35}},
+{id:'zfill',type:'fill',source:'zb',paint:{'fill-color':colExpr,'fill-opacity':.14}},
+{id:'zline',type:'line',source:'zb',paint:{'line-color':colExpr,'line-width':1,'line-opacity':.8}},
+{id:'zglow',type:'line',source:'zb',filter:['==',['get','id'],-1],paint:{'line-color':colExpr,'line-width':12,'line-blur':10,'line-opacity':.9}},
+{id:'zcm',type:'line',source:'zc',paint:{'line-color':colExpr,'line-width':1.4,'line-dasharray':[3,3],'line-opacity':.9}},
+{id:'mask',type:'fill',source:'mask',paint:{'fill-color':'#05080c','fill-opacity':1}},
+{id:'se-glow',type:'line',source:'se',paint:{'line-color':'#38a8f0','line-width':7,'line-blur':7,'line-opacity':.55}},
+{id:'se-line',type:'line',source:'se',paint:{'line-color':'#8fd0f7','line-width':1.2}},
+{id:'osm',type:'raster',source:'osm',layout:{visibility:'none'},paint:{'raster-opacity':.55}}]}});
+map.addControl(new maplibregl.NavigationControl({visualizePitch:true}),'top-left');
+map.addControl(new maplibregl.ScaleControl({unit:'metric'}),'bottom-right');
 
-const OSM='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>-bidragsgivare';
-const base={
-"OpenStreetMap":L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:OSM,maxZoom:19}),
-"Terräng (OpenTopoMap)":L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{attribution:OSM+', SRTM | &copy; OpenTopoMap (CC-BY-SA)',maxZoom:17}),
-"Gatukarta (Esri)":L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{attribution:'Tiles &copy; Esri',maxZoom:19}),
-"Satellit (Esri)":L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Tiles &copy; Esri',maxZoom:18})};
-const map=L.map('map',{layers:[base["OpenStreetMap"]],zoomControl:true,minZoom:3}).fitBounds([[55.2,10.8],[69.2,24.3]]);
-L.control.layers(base,null,{position:'topright'}).addTo(map);
-L.control.scale({metric:true,imperial:false}).addTo(map);
+let sel=null,master=true,label=null,pinM=null;
+function upd(){
+const vis=master?ZONES.filter(z=>z.on).map(z=>z.epsg):[],flt=['in',['get','id'],['literal',vis]],id=sel&&vis.includes(sel)?sel:-1,isSel=['==',['get','id'],id];
+['zfill','zline','zcm'].forEach(l=>map.setFilter(l,flt));
+map.setFilter('zglow',['==',['get','id'],id]);
+map.setPaintProperty('zfill','fill-opacity',['case',isSel,.42,id>0?.05:.14]);
+map.setPaintProperty('zline','line-width',['case',isSel,3,1]);
+map.setPaintProperty('zline','line-opacity',['case',isSel,1,id>0?.3:.8]);
+ZONES.forEach(z=>{z.btn.setAttribute('aria-pressed',z.on);z.btn.classList.toggle('sel',z.epsg===id)});
+if(label){label.remove();label=null}
+const z=ZONES.find(z=>z.epsg===id);
+if(z){const el=document.createElement('div');el.className='zl';el.style.setProperty('--c',z.col);el.textContent='Zon '+nm(z.c)+' · EPSG:'+z.epsg;label=new maplibregl.Marker({element:el}).setLngLat([z.c,69.5]).addTo(map)}}
+ZONES.forEach(z=>{const b=document.createElement('button');b.className='chip';b.style.setProperty('--c',z.col);b.innerHTML='<i></i>'+nm(z.c)+' · '+z.epsg;
+b.onclick=()=>{if(!z.on)z.on=true;sel=sel===z.epsg?null:z.epsg;upd()};
+b.oncontextmenu=e=>{e.preventDefault();z.on=!z.on;upd()};z.btn=b;$('chips').appendChild(b)});
+$('zon').onchange=e=>{master=e.target.checked;upd()};
 
-const S=54.5,Nn=70.5;
-ZONES.forEach(z=>{
-const c=colOf(z),g=L.layerGroup();
-L.rectangle([[S,z.c-.75],[Nn,z.c+.75]],{color:c,weight:1.2,fillOpacity:.1,interactive:false}).addTo(g);
-L.polyline([[S,z.c],[Nn,z.c]],{color:c,weight:2,opacity:.9,interactive:false}).addTo(g);
-L.marker([z.set==='A'?55.0:69.6,z.c],{interactive:false,icon:L.divIcon({className:'',iconSize:[0,0],html:`<div class="zl" style="--c:${c};transform:translate(-50%,-50%)">${nm(z.c)}</div>`})}).addTo(g);
-z.g=g;g.addTo(map);
-const b=document.createElement('button');b.className='chip';b.style.setProperty('--c',c);
-b.innerHTML='<i></i>'+nm(z.c)+' · '+z.epsg;b.onclick=()=>{z.on=!z.on;upd()};z.btn=b;document.getElementById('chips').appendChild(b)});
-function upd(){ZONES.forEach(z=>{z.on?z.g.addTo(map):map.removeLayer(z.g);z.btn.setAttribute('aria-pressed',z.on)})}
-document.getElementById('all').onclick=()=>{ZONES.forEach(z=>z.on=true);upd()};
-document.getElementById('none').onclick=()=>{ZONES.forEach(z=>z.on=false);upd()};
-document.getElementById('setA').onclick=()=>{ZONES.forEach(z=>z.on=z.set==='A');upd()};
-upd();
+document.querySelectorAll('[data-l]').forEach(i=>i.onchange=()=>i.dataset.l.split(',').forEach(l=>map.setLayoutProperty(l,'visibility',i.checked?'visible':'none')));
+document.querySelectorAll('[data-s]').forEach(i=>i.oninput=()=>{const v=i.value/100;i.dataset.s==='hill'?map.setPaintProperty('hill','hillshade-exaggeration',v):map.setPaintProperty('osm','raster-opacity',v)});
+$('t3d').onchange=e=>{if(e.target.checked){map.setTerrain({source:'dem',exaggeration:1.6});map.easeTo({pitch:58,duration:900})}else{map.setTerrain(null);map.easeTo({pitch:0,bearing:0,duration:700})}};
 
-let pin=null;
 function pick(lat,lon){
-if(pin)map.removeLayer(pin);
-pin=L.circleMarker([lat,lon],{radius:7,color:'#e03a3a',weight:3,fillColor:'#e03a3a',fillOpacity:.25}).addTo(map);
-const t=fwd(lat,lon,15,.9996,5e5);
-const z=ZONES.slice().sort((a,b)=>Math.abs(lon-a.c)-Math.abs(lon-b.c))[0];
-const l=fwd(lat,lon,z.c,1,150000);
-document.getElementById('info').innerHTML=`<dl><dt>WGS 84</dt><dd>${f(lat,5)}° N, ${f(lon,5)}° E</dd>
-<dt>Grader/min</dt><dd>${dm(lat)} N, ${dm(lon)} E</dd>
-<dt>SWEREF 99 TM</dt><dd>N ${f(t.n)} m<br>E ${f(t.e)} m</dd>
-<dt>Närmaste zon</dt><dd>${nm(z.c)} (EPSG:${z.epsg})</dd>
-<dt>I zonen</dt><dd>N ${f(l.n)} m<br>E ${f(l.e)} m</dd></dl>`}
-map.on('click',e=>pick(e.latlng.lat,e.latlng.lng));
-map.on('mousemove',e=>{const t=fwd(e.latlng.lat,e.latlng.lng,15,.9996,5e5);document.getElementById('cur').textContent=`SWEREF 99 TM  N ${f(t.n)}  E ${f(t.e)}`});
-document.getElementById('loc').onclick=()=>map.locate({setView:true,maxZoom:13});
-map.on('locationfound',e=>pick(e.latlng.lat,e.latlng.lng));
-map.on('locationerror',()=>alert('Kunde inte hämta din position.'));
-addEventListener('resize',()=>map.invalidateSize());
+const t=fwd(lat,lon,15,.9996,5e5),z=ZONES.slice().sort((a,b)=>Math.abs(lon-a.c)-Math.abs(lon-b.c))[0],l=fwd(lat,lon,z.c,1,15e4);
+if(!pinM){const el=document.createElement('div');el.className='pin';pinM=new maplibregl.Marker({element:el})}
+pinM.setLngLat([lon,lat]).addTo(map);
+$('info').innerHTML=`<dl><dt>WGS 84</dt><dd>${f(lat,5)}° N, ${f(lon,5)}° E</dd><dt>Grader/min</dt><dd>${dm(lat)} N, ${dm(lon)} E</dd><dt>SWEREF 99 TM</dt><dd>N ${f(t.n)} m<br>E ${f(t.e)} m</dd><dt>Närmaste zon</dt><dd>${nm(z.c)} (EPSG:${z.epsg})</dd><dt>I zonen</dt><dd>N ${f(l.n)} m<br>E ${f(l.e)} m</dd></dl>`;
+z.on=true;sel=z.epsg;upd()}
+map.on('click',e=>pick(e.lngLat.lat,e.lngLat.lng));
+map.on('mousemove',e=>{const t=fwd(e.lngLat.lat,e.lngLat.lng,15,.9996,5e5);$('cur').textContent=`SWEREF 99 TM  N ${f(t.n)}  E ${f(t.e)}   |   ${f(e.lngLat.lat,4)}° N ${f(e.lngLat.lng,4)}° E`});
+
+map.on('load',async()=>{upd();let msg=[];
+try{const topo=await (await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json')).json();
+const se=topojson.feature(topo,topo.objects.countries).features.find(x=>x.properties.name==='Sweden');
+const polys=se.geometry.type==='Polygon'?[se.geometry.coordinates]:se.geometry.coordinates;
+map.getSource('se').setData(fc([se]));
+map.getSource('mask').setData({type:'Feature',geometry:{type:'Polygon',coordinates:[[[-180,-85],[180,-85],[180,85],[-180,85],[-180,-85]],...polys.map(p=>p[0])]}})}
+catch(err){msg.push('landgräns')}
+try{const j=await (await fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_lakes.geojson')).json();
+map.getSource('lakes').setData(fc(j.features.filter(x=>{const g=x.geometry,c=g.type==='Polygon'?g.coordinates[0][0]:g.coordinates[0][0][0];return c[0]>10&&c[0]<25&&c[1]>55&&c[1]<70.5})))}
+catch(err){msg.push('sjöar')}
+$('status').textContent=msg.length?'Kunde inte läsa in: '+msg.join(', '):'Klart. Sverige i mörk stil med relief.'});
 </script>
 </body>
 </html>
