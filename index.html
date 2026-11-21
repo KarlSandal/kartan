@@ -62,13 +62,13 @@ const nm=c=>{const d=Math.floor(c),m=Math.round((c-d)*60);return String(d).padSt
 const ZONES=[[12,3007],[13.5,3008],[15,3009],[16.5,3010],[18,3011],[14.25,3012],[15.75,3013],[17.25,3014],[18.75,3015],[20.25,3016],[21.75,3017],[23.25,3018]].map(([c,epsg],i)=>({c,epsg,set:i<5?'A':'B',on:true}));
 const colOf=z=>getComputedStyle(document.documentElement).getPropertyValue(z.set==='A'?'--a':'--b').trim();
 
+const OSM='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>-bidragsgivare';
 const base={
-"Karta (Voyager)":L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap-bidragsgivare &copy; CARTO',maxZoom:19}),
-"Ljus":L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap-bidragsgivare &copy; CARTO',maxZoom:19}),
-"Mörk":L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap-bidragsgivare &copy; CARTO',maxZoom:19}),
-"OpenStreetMap":L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap-bidragsgivare',maxZoom:19}),
-"Satellit":L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Tiles &copy; Esri',maxZoom:18})};
-const map=L.map('map',{layers:[base["Karta (Voyager)"]],zoomControl:true,minZoom:3}).fitBounds([[55.2,10.8],[69.2,24.3]]);
+"OpenStreetMap":L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:OSM,maxZoom:19}),
+"Terräng (OpenTopoMap)":L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{attribution:OSM+', SRTM | &copy; OpenTopoMap (CC-BY-SA)',maxZoom:17}),
+"Gatukarta (Esri)":L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{attribution:'Tiles &copy; Esri',maxZoom:19}),
+"Satellit (Esri)":L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Tiles &copy; Esri',maxZoom:18})};
+const map=L.map('map',{layers:[base["OpenStreetMap"]],zoomControl:true,minZoom:3}).fitBounds([[55.2,10.8],[69.2,24.3]]);
 L.control.layers(base,null,{position:'topright'}).addTo(map);
 L.control.scale({metric:true,imperial:false}).addTo(map);
 
