@@ -35,6 +35,8 @@ dt{color:var(--muted)}dd{margin:0;font-variant-numeric:tabular-nums}
 .maplibregl-ctrl-attrib{background:#0d151dcc!important;color:var(--muted)!important}.maplibregl-ctrl-attrib a{color:var(--muted)!important}
 .sbtn{background:var(--p2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:4px 9px;font:inherit;font-size:12px;cursor:pointer}.sbtn:hover{border-color:var(--acc)}
 .fr{display:flex;gap:8px;align-items:flex-start;padding:4px 0;font-size:12.5px}.fr b{font-weight:600}.fr i{flex:none;width:9px;height:9px;border-radius:50%;background:#ffd08a;box-shadow:0 0 8px #f2a24a;margin-top:5px}.fr span{color:var(--muted)}
+.lsk{color:#f3e2b8;font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;text-shadow:0 0 4px #05080c,0 0 8px #05080c,0 0 2px #000;pointer-events:none;white-space:nowrap;opacity:.82}.lsk.sm{font-size:8.5px;letter-spacing:.1em}
+.dj{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}.dj button{background:var(--p2);color:var(--text);border:1px solid var(--line);border-radius:99px;padding:1px 8px;font:inherit;font-size:11.5px;cursor:pointer}.dj button:hover{border-color:#f2c46a}.dj button span{color:var(--muted)}
 .maplibregl-popup-content{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;font-size:12.5px;padding:8px 10px}.maplibregl-popup-tip{border-top-color:var(--line)!important;border-bottom-color:var(--line)!important}.maplibregl-popup-close-button{color:var(--muted)}
 @media (max-width:760px){body{flex-direction:column}#mapw{flex:none;height:56%}aside{width:100%;flex:1;border-left:0;border-top:1px solid var(--line)}#cur{display:none}}
 </style>
@@ -55,6 +57,8 @@ dt{color:var(--muted)}dd{margin:0;font-variant-numeric:tabular-nums}
 <h2>Geografi</h2>
 <div class="row"><span>Sverigekontur</span><label class="sw"><input type="checkbox" data-l="se-glow,se-line" checked><i></i></label></div>
 <div class="row"><span>Sjöar</span><label class="sw"><input type="checkbox" data-l="lakes-fill,lakes-line" checked><i></i></label></div>
+<div class="row"><span>Landskapsgränser</span><label class="sw"><input type="checkbox" id="lon" checked><i></i></label></div>
+<div class="row"><span>Landskapsnamn</span><label class="sw"><input type="checkbox" id="lnamn" checked><i></i></label></div>
 <div class="row"><span>Kommungränser</span><label class="sw"><input type="checkbox" data-l="komm-line"><i></i></label></div>
 
 <h2>SWEREF 99-zoner (förslag)</h2>
@@ -74,6 +78,10 @@ dt{color:var(--muted)}dd{margin:0;font-variant-numeric:tabular-nums}
 <div class="row" style="margin-top:8px"><span>Göteborgs spårvagnar (efter tidtabell)</span><label class="sw"><input type="checkbox" id="son" checked><i></i></label></div>
 <div id="slist"><p class="hint">Laddar spårvagnstidtabellen…</p></div>
 <p class="hint">Vagnarna står där de ska vara enligt Västtrafiks tidtabell, inte där de faktiskt är. Förseningar och inställda turer syns inte. Tidtabellen hämtas automatiskt varje vecka från Trafiklab. Syns när du zoomar in över Göteborg.</p>
+
+<div class="row" style="margin-top:8px"><span>Landskapsdjur (vandrar fritt)</span><label class="sw"><input type="checkbox" id="don" checked><i></i></label></div>
+<div class="dj" id="dlist"></div>
+<p class="hint">Varje landskap har ett landskapsdjur. De röstades fram 1988 i en omröstning som Världsnaturfonden ordnade. Djuren går, flyger eller simmar slumpmässigt inom sitt landskap. Det är bara på skoj och visar inte var djuren faktiskt lever. Tryck på ett namn för att hitta djuret.</p>
 
 <h2>Vald punkt</h2>
 <div id="info"><p class="hint">Ingen punkt vald ännu.</p></div>
@@ -170,13 +178,13 @@ document.querySelectorAll('[data-l]').forEach(i=>i.onchange=()=>i.dataset.l.spli
 document.querySelectorAll('[data-s]').forEach(i=>i.oninput=()=>{const v=i.value/100;i.dataset.s==='hill'?map.setPaintProperty('hill','hillshade-exaggeration',v):map.setPaintProperty('osm','raster-opacity',v)});
 $('t3d').onchange=e=>{if(e.target.checked){map.setTerrain({source:'dem',exaggeration:1.6});map.easeTo({pitch:58,duration:900})}else{map.setTerrain(null);map.easeTo({pitch:0,bearing:0,duration:700})}};
 
-function pick(lat,lon,k){
+function pick(lat,lon,k,ls){
 const t=fwd(lat,lon,15,.9996,5e5),z=(k&&ZONES.find(z=>z.epsg===k.zon))||ZONES.slice().sort((a,b)=>Math.abs(lon-a.c)-Math.abs(lon-b.c))[0],l=fwd(lat,lon,z.c,1,15e4);
 if(!pinM){const el=document.createElement('div');el.className='pin';pinM=new maplibregl.Marker({element:el})}
 pinM.setLngLat([lon,lat]).addTo(map);
-$('info').innerHTML=`<dl>${k?`<dt>Kommun</dt><dd>${k.kn}</dd>`:''}<dt>WGS 84</dt><dd>${f(lat,5)}° N, ${f(lon,5)}° E</dd><dt>Grader/min</dt><dd>${dm(lat)} N, ${dm(lon)} E</dd><dt>SWEREF 99 TM</dt><dd>N ${f(t.n)} m<br>E ${f(t.e)} m</dd><dt>${k?'Zon (förslag)':'Närmaste zon'}</dt><dd>${nm(z.c)} (EPSG:${z.epsg})</dd><dt>I zonen</dt><dd>N ${f(l.n)} m<br>E ${f(l.e)} m</dd></dl>`;
+$('info').innerHTML=`<dl>${k?`<dt>Kommun</dt><dd>${k.kn}</dd>`:''}${ls?`<dt>Landskap</dt><dd>${ls.namn}${LDJUR[ls.namn]?' ('+LDJUR[ls.namn][1].toLowerCase()+')':''}</dd>`:''}<dt>WGS 84</dt><dd>${f(lat,5)}° N, ${f(lon,5)}° E</dd><dt>Grader/min</dt><dd>${dm(lat)} N, ${dm(lon)} E</dd><dt>SWEREF 99 TM</dt><dd>N ${f(t.n)} m<br>E ${f(t.e)} m</dd><dt>${k?'Zon (förslag)':'Närmaste zon'}</dt><dd>${nm(z.c)} (EPSG:${z.epsg})</dd><dt>I zonen</dt><dd>N ${f(l.n)} m<br>E ${f(l.e)} m</dd></dl>`;
 z.on=true;sel=z.epsg;upd()}
-map.on('click',e=>{if(['ferry','tram'].some(l=>map.getLayer(l)&&map.queryRenderedFeatures(e.point,{layers:[l]}).length))return;const k=map.queryRenderedFeatures(e.point,{layers:['khit']})[0];pick(e.lngLat.lat,e.lngLat.lng,k&&k.properties)});
+map.on('click',e=>{if(['ferry','tram','djur'].some(l=>map.getLayer(l)&&map.queryRenderedFeatures(e.point,{layers:[l]}).length))return;const k=map.queryRenderedFeatures(e.point,{layers:['khit']})[0],ls=map.getLayer('lsk-hit')&&map.queryRenderedFeatures(e.point,{layers:['lsk-hit']})[0];pick(e.lngLat.lat,e.lngLat.lng,k&&k.properties,ls&&ls.properties)});
 map.on('mousemove',e=>{const t=fwd(e.lngLat.lat,e.lngLat.lng,15,.9996,5e5);$('cur').textContent=`SWEREF 99 TM  N ${f(t.n)}  E ${f(t.e)}   |   ${f(e.lngLat.lat,4)}° N ${f(e.lngLat.lng,4)}° E`});
 
 map.on('load',async()=>{upd();let msg=[];
@@ -347,6 +355,146 @@ map.on('load',async()=>{
     if(h!==sKlick){sKlick=h;$('slist').innerHTML=h;const b=$('sgo');if(b)b.onclick=()=>map.flyTo({center:GBG,zoom:12.5,pitch:0,duration:2500})}}}
   setTimeout(()=>requestAnimationFrame(svTick),100)}
  requestAnimationFrame(svTick)});
+/* ===== Landskap och landskapsdjur =====
+   Gränser: data/landskap.geojson, från github.com/perliedman/svenska-landskap (CC0),
+   som bygger på Lantmäteriets distriktskarta. Förenklad med tools/landskap.mjs.
+   Djuren: Världsnaturfondens omröstning 1988, kontrollerade mot nordicperspective.com.
+   Symbolerna är egenritade här nedanför, inga bilder hämtas utifrån. */
+const LDJUR={Skåne:['kronhjort','Kronhjort'],Blekinge:['ekoxe','Ekoxe'],Öland:['naktergal','Näktergal'],Halland:['lax','Lax'],Småland:['utter','Utter'],
+ Gotland:['igelkott','Igelkott'],Västergötland:['trana','Trana'],Östergötland:['knolsvan','Knölsvan'],Bohuslän:['knubbsal','Knubbsäl'],Dalsland:['korp','Korp'],
+ Närke:['hasselmus','Hasselmus'],Södermanland:['fiskgjuse','Fiskgjuse'],Värmland:['varg','Varg'],Västmanland:['radjur','Rådjur'],Uppland:['havsorn','Havsörn'],
+ Gästrikland:['tjader','Tjäder'],Dalarna:['berguv','Berguv'],Hälsingland:['lodjur','Lodjur'],Härjedalen:['bjorn','Brunbjörn'],Medelpad:['hare','Skogshare'],
+ Ångermanland:['baver','Bäver'],Jämtland:['alg','Älg'],Västerbotten:['storspov','Storspov'],Lappland:['fjallrav','Fjällräv'],Norrbotten:['lavskrika','Lavskrika']};
+/* Hur djuren rör sig. Hastighet i bildpunkter per sekund på skärmen. */
+const FLYG=['naktergal','knolsvan','korp','fiskgjuse','havsorn','berguv','lavskrika'],SIM=['lax','knubbsal'];
+const SATT=k=>FLYG.includes(k)?{v:10,vila:[0,0],glod:'#8fd0f7'}:SIM.includes(k)?{v:4,vila:[1,4],glod:'#5fe0d0'}:k==='hare'?{v:7,vila:[1,4],glod:'#f2c46a'}:{v:4.5,vila:[1.5,6],glod:'#f2c46a'};
+
+/* Siluetterna ritas i en ruta 100 x 100, med djuret vänt åt höger och marken vid y = 86.
+   f = bildruta 0 eller 1 (ben och vingar växlar när djuret rör sig). */
+function djurForm(k,f,g){
+ const e=(x,y,rx,ry,r=0)=>{g.beginPath();g.ellipse(x,y,rx,ry,r,0,7);g.fill()};
+ const p=a=>{g.beginPath();a.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill()};
+ const l=(a,w)=>{g.lineWidth=w;g.beginPath();a.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.stroke()};
+ const s=(d,w)=>{g.lineWidth=w;g.stroke(new Path2D(d))},d=d=>g.fill(new Path2D(d));
+ const ben=(xs,top,len,w)=>xs.forEach((x,i)=>{const sv=(i%2?1:-1)*(f?5:-5)*(len/30);l([[x,top],[x+sv,top+len]],w)});
+ const vinge=(y0,a)=>{const k=f?.7:-1;p(a.map(([x,dy])=>[x,y0+k*dy]))}; /* vingen uppe (f=0) eller nere (f=1) */
+ switch(k){
+ case 'kronhjort':e(46,52,23,11);p([[58,48],[66,28],[74,26],[70,52]]);e(77,27,9,4.5,.4);e(67,23,4,2,-.6);e(23,47,3,2);ben([30,36,56,62],56,28,3.6);
+  l([[70,23],[66,13],[61,4]],2.2);l([[66,14],[73,10]],2);l([[63,8],[57,7]],2);l([[73,23],[74,12],[78,3]],2);l([[74,13],[80,11]],2);return[77,25,1.3];
+ case 'radjur':e(48,56,18,9);p([[58,52],[63,36],[70,35],[66,56]]);e(71,35,7,4,.4);e(64,30,4,2,-.7);ben([36,41,55,60],60,26,3);
+  l([[66,31],[65,20]],2);l([[65,25],[70,23]],1.8);l([[65,20],[61,18]],1.8);return[71,33,1.2];
+ case 'alg':e(46,47,25,13);e(58,39,11,7);p([[62,40],[74,38],[78,52],[66,54]]);e(80,47,11,5.5,.5);e(87,52,4,4);l([[75,53],[75,62]],2.6);ben([28,35,56,63],55,31,4);
+  p([[70,37],[64,27],[57,23],[60,29],[54,27],[60,33],[66,36]]);p([[74,36],[78,25],[85,21],[83,27],[89,25],[83,33]]);return[79,44,1.4];
+ case 'varg':e(46,50,22,9);e(60,49,8,9);p([[60,44],[68,36],[74,40],[68,53]]);e(72,39,7,6);p([[74,35],[88,41],[74,45]]);p([[65,35],[67,25],[72,33]]);
+  p([[26,45],[11,60],[16,62],[29,51]]);ben([32,38,56,62],54,31,3.6);return[74,38,1.3];
+ case 'fjallrav':e(46,57,18,8);e(66,49,7,6);p([[68,46],[80,51],[68,53]]);p([[60,46],[60,36],[66,43]]);p([[65,43],[68,35],[71,43]]);e(22,55,14,6,-.35);ben([36,41,54,59],61,24,3);return[68,48,1.2];
+ case 'lodjur':e(46,50,20,11.5);e(68,41,8,7);e(75,44,4,3);e(68,48,6,5);p([[62,37],[62,25],[67,34]]);l([[62,26],[62,20]],1.3);p([[69,35],[71,25],[73,35]]);l([[71,26],[72,20]],1.3);
+  e(26,45,4,3);ben([33,39,53,59],56,28,5);return[71,40,1.3];
+ case 'bjorn':e(46,52,26,15);e(56,40,12,8);e(74,46,10,9);e(84,50,6,4.5);e(69,37,3.5,3.5);ben([30,38,54,62],60,26,7);return[77,44,1.4];
+ case 'utter':e(46,62,23,10,-.05);e(71,57,9,7.5);e(80,60,4.5,4);e(67,50,2.2,2.2);p([[26,58],[6,70],[9,73],[28,68]]);ben([34,40,54,60],66,16,5);return[74,55,1.3];
+ case 'baver':e(44,62,22,13);e(66,60,9,8);e(74,63,5,4.5);e(63,52,2.5,2.5);e(18,77,12,4,.25);ben([34,40,52,58],70,16,5);return[69,58,1.3];
+ case 'hare':{const y=f?-7:0;e(46,58+y,16,11,-.2);e(62,46+y,7,6);e(56,33+y,3,10,-.35);e(61,32+y,3,10,-.1);e(30,54+y,4,4);e(38,68+y,10,6);
+  l(f?[[36,70+y],[22,80]]:[[34,74],[48,77]],4);l(f?[[56,62+y],[70,72]]:[[56,64],[59,79]],3);return[64,45+y,1.3]}
+ case 'hasselmus':e(48,64,14,11);e(62,60,9,8);e(59,50,5,5);e(70,63,3,3);s('M35 66 C20 70 14 56 22 50 C28 46 33 52 29 56',3.5);ben([42,52,58],72,10,3);return[65,58,2.2];
+ case 'igelkott':{g.beginPath();for(let i=0;i<=24;i++){const a=Math.PI+i/24*Math.PI,r=i%2?27:21;g.lineTo(46+Math.cos(a)*r,70+Math.sin(a)*r*.8)}g.closePath();g.fill();
+  p([[62,60],[81,68],[64,74]]);ben([36,46,58],70,12,3.2);return[70,64,1.4]}
+ case 'knubbsal':{const y=f?2:0;d(`M14 ${64+y} C20 ${52+y} 46 ${46+y} 62 ${48+y} C74 ${49+y} 80 ${56+y} 78 ${64+y} C72 ${72+y} 40 ${72+y} 14 ${64+y} Z`);e(76,54+y,9,8);e(84,57+y,4,3.5);
+  p([[56,66+y],[62,76+y],[50,70+y]]);p([[16,64+y],[3,56],[8,64+y],[3,72]]);return[78,52+y,1.5]}
+ case 'lax':d('M14 54 C30 40 62 40 82 52 C86 54 86 56 82 58 C62 68 30 68 14 56 Z');p(f?[[18,55],[3,42],[7,55],[5,68]]:[[18,55],[5,44],[8,55],[2,66]]);
+  p([[44,44],[50,34],[57,44]]);p([[56,64],[60,70],[63,63]]);return[76,52,1.6];
+ case 'ekoxe':e(42,60,20,10);e(64,58,8,7);e(74,57,6,5);l([[78,54],[90,45],[95,50]],2.6);l([[78,59],[90,53],[95,58]],2.2);l([[74,52],[79,42]],1.3);
+  [[40,66],[50,66],[64,64]].forEach(([x,y],i)=>l([[x,y],[x+((i%2?1:-1)*(f?3:-3)),y+12],[x-6,y+16]],2.2));return[77,55,1];
+ case 'tjader':e(46,54,18,13);g.beginPath();g.moveTo(36,50);g.arc(36,50,24,Math.PI*1.08,Math.PI*1.62);g.closePath();g.fill();p([[56,46],[60,32],[68,32],[64,52]]);e(66,32,6,5);p([[70,30],[77,34],[70,36]]);l([[64,36],[64,42]],2);
+  ben([42,52],64,20,3);return[67,30,1.2];
+ case 'trana':e(44,46,16,9);e(28,48,10,8);s('M56 42 C64 36 62 22 68 16',4);e(70,15,4,3.5);p([[72,13],[85,16],[72,17]]);ben([42,48],53,33,2.4);return[70,14,1];
+ case 'storspov':e(46,54,16,9);p([[30,52],[20,50],[30,58]]);l([[58,50],[64,42]],5);e(66,41,5.5,5);s('M70 42 C80 44 86 52 90 60',2);ben([44,50],61,25,2);return[67,40,1.1];
+ case 'korp':e(48,52,18,7);e(68,48,7,6);p([[73,45],[85,49],[73,52]]);p([[31,50],[12,45],[14,59],[31,55]]);
+  vinge(50,[[36,0],[30,14],[24,30],[26,40],[32,36],[36,40],[42,33],[48,26],[56,10],[58,0]]);return[70,46,1.2];
+ case 'lavskrika':e(48,55,13,7);e(63,50,7,6.5);p([[58,45],[62,40],[66,44]]);p([[68,48],[75,50],[68,52]]);p([[36,53],[13,49],[13,59],[36,58]]);
+  vinge(53,[[40,0],[34,14],[34,28],[42,30],[52,18],[56,0]]);return[65,49,1.3];
+ case 'naktergal':e(50,55,12,8);e(63,50,6,6);p([[68,49],[77,51],[68,52]]);p([[39,53],[24,49],[25,59],[39,58]]);
+  vinge(53,[[42,0],[38,14],[37,26],[43,28],[51,18],[56,0]]);return[65,49,1.2];
+ case 'berguv':e(48,55,16,11);e(66,47,10,9);p([[60,40],[58,28],[64,38]]);p([[68,38],[70,27],[74,39]]);p([[75,48],[80,51],[75,53]]);p([[33,53],[22,51],[24,60],[33,59]]);
+  vinge(53,[[38,0],[30,16],[28,32],[36,37],[46,33],[54,20],[60,0]]);return[71,46,2.4];
+ case 'havsorn':e(48,54,18,7);e(67,51,6,5.5);p([[71,48],[82,52],[78,56],[71,55]]);p([[31,52],[18,49],[18,59],[31,57]]);
+  vinge(52,[[32,0],[24,16],[16,34],[18,44],[24,40],[28,46],[34,40],[40,44],[44,36],[52,30],[58,14],[60,0]]);return[68,50,1.2];
+ case 'fiskgjuse':e(48,52,16,6);e(66,50,5.5,5);p([[70,48],[78,51],[72,54]]);p([[33,50],[22,48],[22,56],[33,55]]);
+  vinge(50,[[38,0],[46,12],[40,22],[24,40],[38,36],[52,26],[58,12],[58,0]]);l([[48,57],[50,64]],1.6);e(50,67,9,3);p([[41,67],[35,62],[35,72]]);return[67,49,1.1];
+ case 'knolsvan':e(42,55,18,9);l([[56,53],[76,48]],5);e(80,47,5,4);p([[83,45],[93,48],[83,50]]);e(84,44,1.8,1.8);p([[25,53],[15,51],[17,59],[25,58]]);
+  vinge(53,[[32,0],[26,16],[20,34],[24,40],[32,38],[40,34],[48,24],[56,0]]);return[80,46,1.1];
+ }return null}
+
+function djurIkon(k,f,vanster){
+ const S=96,sil=document.createElement('canvas');sil.width=sil.height=S;const g=sil.getContext('2d');
+ g.translate(6,6);g.scale(.84,.84);g.fillStyle=g.strokeStyle='#fff';g.lineCap=g.lineJoin='round';
+ const oga=djurForm(k,f,g);
+ const farg=(c,col)=>{const t=document.createElement('canvas');t.width=t.height=S;const x=t.getContext('2d');x.drawImage(c,0,0);x.globalCompositeOperation='source-in';x.fillStyle=col;x.fillRect(0,0,S,S);return t};
+ const ljus=farg(sil,'#fbf1dc'),mork=farg(sil,'#2a1e0e');
+ const c=document.createElement('canvas');c.width=c.height=S;const x=c.getContext('2d');
+ if(vanster){x.translate(S,0);x.scale(-1,1)}
+ for(let a=0;a<8;a++)x.drawImage(mork,Math.cos(a*Math.PI/4)*2.2,Math.sin(a*Math.PI/4)*2.2);
+ x.shadowColor=SATT(k).glod;x.shadowBlur=10;x.drawImage(ljus,0,0);x.shadowBlur=0;
+ if(oga){x.fillStyle='#2a1e0e';x.beginPath();x.arc(6+oga[0]*.84,6+oga[1]*.84,oga[2]*.84+.6,0,7);x.fill()}
+ return x.getImageData(0,0,S,S)}
+
+let LSK=null,DJUR=[],dOn=true,lskMarks=[];
+function slumpPunkt(omr,bb){for(let i=0;i<200;i++){const pt=[bb[0]+Math.random()*(bb[2]-bb[0]),bb[1]+Math.random()*(bb[3]-bb[1])];if(turf.booleanPointInPolygon(pt,omr))return pt}return null}
+function nyttMal(d){ /* en ny punkt inom landskapet dit djuret kan gå i rak linje utan att lämna det */
+ for(let i=0;i<40;i++){const m=slumpPunkt(d.omr,d.bb);if(!m)break;
+  const km=turf.distance(d.pos,m);if(km>Math.max(25,d.stor*.6)||km<3)continue;
+  let ok=true;for(let j=1;j<10&&ok;j++){const t=j/10;ok=turf.booleanPointInPolygon([d.pos[0]+(m[0]-d.pos[0])*t,d.pos[1]+(m[1]-d.pos[1])*t],d.omr)}
+  if(ok)return m}
+ return null}
+function djurSteg(d,t,dt){
+ if(d.vilaTill>t){d.f=0;return}
+ if(!d.mal){d.mal=nyttMal(d);if(!d.mal){d.vilaTill=t+2000;return}}
+ const lat=d.pos[1],mpp=40075016*Math.cos(lat*R)/(512*Math.pow(2,map.getZoom()));
+ const km=d.satt.v*mpp/1000*dt/1000,kvar=turf.distance(d.pos,d.mal);
+ const dx=d.mal[0]-d.pos[0];if(Math.abs(dx)>1e-6)d.vanster=dx<0;
+ if(kvar<=km){d.pos=d.mal;d.mal=null;const[a,b]=d.satt.vila;d.vilaTill=t+(a+Math.random()*(b-a))*1000}
+ else{const r=km/kvar;d.pos=[d.pos[0]+dx*r,d.pos[1]+(d.mal[1]-d.pos[1])*r]}
+ d.f=Math.floor(t/(FLYG.includes(d.k)?160:220))%2}
+function djurPopup(d,ll){new maplibregl.Popup({offset:16}).setLngLat(ll||d.pos).setHTML(`<b>${d.namn}</b><br>Landskapsdjur för ${d.landskap}<br><span style="color:var(--muted)">Vandrar slumpmässigt, inte en riktig position.</span>`).addTo(map)}
+
+map.on('load',async()=>{
+ map.addSource('lsk',{type:'geojson',data:EMPTY,promoteId:'kod',attribution:'Landskap: Lantmäteriet via perliedman/svenska-landskap (CC0)'});
+ map.addSource('djur',{type:'geojson',data:EMPTY});
+ map.addLayer({id:'lsk-hit',type:'fill',source:'lsk',filter:['has','namn'],paint:{'fill-color':'#f3e2b8','fill-opacity':['case',['boolean',['feature-state','hov'],false],.07,0]}},'mask');
+ map.addLayer({id:'lsk-glow',type:'line',source:'lsk',filter:['has','namn'],layout:{'line-join':'round'},paint:{'line-color':'#f2c46a','line-width':['interpolate',['linear'],['zoom'],4,3,9,7],'line-blur':4,'line-opacity':.22}},'mask');
+ map.addLayer({id:'lsk-line',type:'line',source:'lsk',filter:['has','namn'],layout:{'line-join':'round'},paint:{'line-color':'#f3e2b8','line-width':['interpolate',['linear'],['zoom'],4,.7,9,1.6],'line-opacity':.8,'line-dasharray':[4,1.5]}},'mask');
+ map.addLayer({id:'djur',type:'symbol',source:'djur',layout:{'icon-image':['get','ik'],'icon-size':['interpolate',['linear'],['zoom'],4,.75,7,1,11,1.3],'icon-allow-overlap':true,'icon-ignore-placement':true}});
+ let hov=null;
+ map.on('mousemove','lsk-hit',e=>{const id=e.features[0].id;if(id===hov)return;if(hov!==null)map.setFeatureState({source:'lsk',id:hov},{hov:false});hov=id;map.setFeatureState({source:'lsk',id},{hov:true})});
+ map.on('mouseleave','lsk-hit',()=>{if(hov!==null)map.setFeatureState({source:'lsk',id:hov},{hov:false});hov=null});
+ map.on('mouseenter','djur',()=>map.getCanvas().style.cursor='pointer');map.on('mouseleave','djur',()=>map.getCanvas().style.cursor='');
+ map.on('click','djur',e=>{const d=DJUR[e.features[0].properties.i];djurPopup(d,e.lngLat)});
+ const vis=(ids,on)=>ids.forEach(l=>map.setLayoutProperty(l,'visibility',on?'visible':'none'));
+ const namnVisas=()=>lskMarks.forEach(m=>m.el.style.display=$('lnamn').checked&&$('lon').checked?'':'none');
+ $('lon').onchange=e=>{vis(['lsk-glow','lsk-line'],e.target.checked);namnVisas()};$('lnamn').onchange=namnVisas;
+ $('don').onchange=e=>{dOn=e.target.checked;vis(['djur'],dOn)};
+ map.on('zoom',()=>{const sm=map.getZoom()<5.2;lskMarks.forEach(m=>m.el.classList.toggle('sm',sm))});
+ try{const r=await fetch('data/landskap.geojson');if(!r.ok)throw 0;LSK=await r.json()}
+ catch(err){$('dlist').innerHTML='<p class="hint">Kunde inte läsa in landskapen.</p>';return}
+ map.getSource('lsk').setData(LSK);
+ LSK.features.filter(x=>x.properties.namn).forEach(x=>{const el=document.createElement('div');el.className='lsk';el.textContent=x.properties.namn;
+  lskMarks.push({el,m:new maplibregl.Marker({element:el}).setLngLat([x.properties.lx,x.properties.ly]).addTo(map)})});
+ map.fire('zoom');
+ Object.entries(LDJUR).forEach(([ls,[k,namn]])=>{
+  const omr=LSK.features.find(x=>SIM.includes(k)?x.properties.hav===ls:FLYG.includes(k)?x.properties.namn===ls:x.properties.mark===ls); /* fåglar flyger över hela landskapet, andra djur går på land utom de stora sjöarna, säl och lax simmar i havet */
+  if(!omr)return;
+  [0,1].forEach(f=>[0,1].forEach(v=>map.addImage(`dj-${k}-${f}${v}`,djurIkon(k,f,v),{pixelRatio:2})));
+  const bb=turf.bbox(omr),d={k,namn,landskap:ls,omr,bb,stor:turf.distance([bb[0],bb[1]],[bb[2],bb[3]]),satt:SATT(k),vilaTill:0,mal:null,f:0,vanster:Math.random()<.5};
+  d.pos=slumpPunkt(omr,bb);if(!d.pos)return;DJUR.push(d)});
+ $('dlist').innerHTML=DJUR.map((d,i)=>`<button data-i="${i}">${d.namn} <span>${d.landskap}</span></button>`).join('');
+ $('dlist').onclick=e=>{const b=e.target.closest('button');if(!b)return;const d=DJUR[b.dataset.i];
+  if(!dOn){$('don').checked=true;$('don').onchange({target:$('don')})}
+  map.flyTo({center:d.pos,zoom:Math.max(map.getZoom(),7),duration:1800});map.once('moveend',()=>djurPopup(d))};
+ let senast=performance.now();
+ function dTick(t){const dt=Math.min(200,t-senast);senast=t;
+  if(dOn){DJUR.forEach(d=>djurSteg(d,t,dt));
+   map.getSource('djur').setData(fc(DJUR.map((d,i)=>({type:'Feature',properties:{i,ik:`dj-${d.k}-${d.f}${d.vanster?1:0}`},geometry:{type:'Point',coordinates:d.pos}}))))}
+  setTimeout(()=>requestAnimationFrame(dTick),50)}
+ requestAnimationFrame(dTick)});
 </script>
 </body>
 </html>
