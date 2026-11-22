@@ -18,12 +18,14 @@ En stiliserad, interaktiv Sverigekarta som webbsida.
 - SWEREF 99: alla 12 lokala zoner (EPSG 3007–3018) i egna färger, med mittmeridianer och ett 100 km-rutnät i SWEREF 99 TM.
 - Varje kommun får ett beräknat zonförslag. Gränsen mellan den södra och den norra zonserien ställs in med ett reglage (standard 62,5° N). Gotland är låst till 18 45.
 - Klick på kartan visar kommun och koordinater (WGS 84, SWEREF 99 TM och den lokala zonen).
+- Göteborgs spårvagnar (panelen "Levande"): spårnät och vagnar efter Västtrafiks tidtabell, syns från zoomnivå 10,5. Inte riktiga positioner.
 
 ## Datakällor (hämtas när sidan laddas)
 - Terräng: AWS Terrain Tiles (Mapzen)
 - Sverigekontur: world-atlas (Natural Earth 50m)
 - Sjöar: Natural Earth 50m
 - Kommuner: okfse/sweden-geojson på GitHub
+- Spårvagnar: `data/sparvagn.json` i repot. Den skapas automatiskt av GitHub Actions (`.github/workflows/sparvagn.yml`) varje måndag och torsdag från Trafiklabs GTFS Regional (Västtrafik). Nyckeln ligger som GitHub-hemlighet `TRAFIKLAB_KEY`, aldrig i koden.
 
 ## På gång / ofärdigt
 - Avsnittet "Data" (datakatalogens lager) är inte påbörjat.
@@ -35,4 +37,7 @@ En stiliserad, interaktiv Sverigekarta som webbsida.
 - Eventuellt en noggrannare Sverigekontur och egna kopior av datafilerna i repot.
 
 ## Beslut och önskemål
+- Västtrafik har inga öppna fordonspositioner utan nyckel, därför går spårvagnarna efter tidtabell.
+- Nycklar läggs bara som GitHub-hemligheter eller i webbläsarens localStorage, aldrig i koden.
+
 (Fyll i här: saker som är bestämda och som Claude inte ska fråga om igen.)
