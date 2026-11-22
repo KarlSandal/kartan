@@ -282,13 +282,18 @@ map.on('load',()=>{
    Vagnarna visas där de ska vara enligt tidtabellen, inte där de faktiskt är. */
 const SV_MINZ=10.5,GBG=[11.975,57.705]; /* från denna zoomnivå syns spårnät och vagnar */
 const sDag=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Stockholm',year:'numeric',month:'2-digit',day:'2-digit'});
+/* Göteborgs vanliga linjefärger. Skrivna ur minnet, inte kontrollerade mot Västtrafik.
+   Tidtabellsfilen saknar färger, så de här används i stället. Ändra fritt. */
+const LINJEFARG={'1':'#ffffff','2':'#ffe11e','3':'#0a5aa8','4':'#14823c','5':'#e3242b','6':'#f58220','7':'#8b5a2b','8':'#8e3c97','9':'#7fc8ee','10':'#b5d77a','11':'#111111','12':'#2fd0c3','13':'#f7a8c8','X':'#6b7c8a'}; /* 12 och X (extra-/ersättningsturer) är påhittade */
+const svText=c=>parseInt(c.slice(1,3),16)*.3+parseInt(c.slice(3,5),16)*.59+parseInt(c.slice(5,7),16)*.11>150?'#06121b':'#ffffff';
 let SV=null,sOn=true,sKlick=null;
 const svMeter=(a,b,kx)=>Math.hypot((b[0]-a[0])*kx,(b[1]-a[1])*110540);
 function svForbered(){
+ SV.linjer.forEach(l=>{if(LINJEFARG[l.n]){l.c=LINJEFARG[l.n];l.t=null}});
  SV.monster.forEach(p=>{const kx=111320*Math.cos(p.g[0][1]*R);p.cum=[0];for(let i=1;i<p.g.length;i++)p.cum.push(p.cum[i-1]+svMeter(p.g[i-1],p.g[i],kx));p.kx=kx});
  SV.turer.forEach(t=>{const pr=SV.profiler[t[0]];t.push(t[1]+pr.a[pr.a.length-1])}); /* t[4] = sluttid */
  const sett=new Set(),nat=[],hpl=new Map();
- SV.monster.forEach(p=>{const k=p.r+':'+JSON.stringify(p.g);if(!sett.has(k)){sett.add(k);nat.push({type:'Feature',properties:{c:SV.linjer[p.r].c},geometry:{type:'LineString',coordinates:p.g}})}
+ SV.monster.slice().sort((a,b)=>(SV.linjer[b.r].n==='X')-(SV.linjer[a.r].n==='X')).forEach(p=>{const k=p.r+':'+JSON.stringify(p.g);if(!sett.has(k)){sett.add(k);nat.push({type:'Feature',properties:{c:SV.linjer[p.r].c},geometry:{type:'LineString',coordinates:p.g}})}
   p.sd.forEach((d,i)=>{const c=svPunkt(p,d),k=SV.namn[p.s[i]]+c.map(v=>v.toFixed(3));if(!hpl.has(k))hpl.set(k,{type:'Feature',properties:{n:SV.namn[p.s[i]]},geometry:{type:'Point',coordinates:c}})})});
  map.getSource('snat').setData(fc(nat));map.getSource('shpl').setData(fc([...hpl.values()]));
  SV.linjer.forEach((l,i)=>map.addImage('sv'+i,svIkon(l),{pixelRatio:2}))}
@@ -296,7 +301,7 @@ function svPunkt(p,d){const c=p.cum;if(d<=0)return p.g[0];if(d>=c[c.length-1])re
  let lo=0,hi=c.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(c[m]<=d)lo=m;else hi=m}
  const f=(d-c[lo])/((c[hi]-c[lo])||1),a=p.g[lo],b=p.g[hi];return[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f]}
 function svIkon(l){const s=64,c=document.createElement('canvas');c.width=c.height=s;const x=c.getContext('2d');
- const txt=l.t||(parseInt(l.c.slice(1,3),16)*.3+parseInt(l.c.slice(3,5),16)*.59+parseInt(l.c.slice(5,7),16)*.11>150?'#06121b':'#ffffff');
+ const txt=l.t||svText(l.c);
  x.shadowColor=l.c;x.shadowBlur=10;x.fillStyle=l.c;x.beginPath();x.roundRect(10,14,44,36,10);x.fill();
  x.shadowBlur=0;x.lineWidth=3;x.strokeStyle='#ffffffcc';x.stroke();
  x.fillStyle=txt;x.font='bold '+(l.n.length>2?17:22)+'px system-ui,sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(l.n,32,33);
@@ -316,12 +321,13 @@ function svLage(T,dag){ /* alla vagnar i trafik vid T sekunder efter midnatt */
 map.on('load',async()=>{
  map.addSource('snat',{type:'geojson',data:EMPTY,attribution:'Spårvagnar: Västtrafik via Trafiklab'});
  map.addSource('shpl',{type:'geojson',data:EMPTY});map.addSource('spos',{type:'geojson',data:EMPTY});
+ map.addLayer({id:'snat-case',type:'line',source:'snat',minzoom:SV_MINZ-.5,layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#e3edf5','line-width':['interpolate',['linear'],['zoom'],10,2.2,15,5],'line-opacity':.22}});
  map.addLayer({id:'snat-glow',type:'line',source:'snat',minzoom:SV_MINZ-.5,layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['get','c'],'line-width':['interpolate',['linear'],['zoom'],10,4,15,12],'line-blur':5,'line-opacity':.35}});
  map.addLayer({id:'snat',type:'line',source:'snat',minzoom:SV_MINZ-.5,layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['get','c'],'line-width':['interpolate',['linear'],['zoom'],10,1,15,3],'line-opacity':.9}});
  map.addLayer({id:'shpl',type:'circle',source:'shpl',minzoom:12.5,paint:{'circle-radius':['interpolate',['linear'],['zoom'],12.5,1.5,16,4],'circle-color':'#0a0f15','circle-stroke-color':'#e3edf5','circle-stroke-width':1}});
  map.addLayer({id:'tram-dir',type:'circle',source:'spos',minzoom:SV_MINZ,paint:{'circle-radius':['interpolate',['linear'],['zoom'],10.5,5,15,13],'circle-color':'#ffffff','circle-opacity':.12,'circle-blur':.6,'circle-pitch-alignment':'map'}});
  map.addLayer({id:'tram',type:'symbol',source:'spos',minzoom:SV_MINZ,layout:{'icon-image':['get','ik'],'icon-size':['interpolate',['linear'],['zoom'],10.5,.7,15,1.2],'icon-allow-overlap':true,'icon-ignore-placement':true}});
- const LAG=['snat-glow','snat','shpl','tram-dir','tram'];
+ const LAG=['snat-case','snat-glow','snat','shpl','tram-dir','tram'];
  $('son').onchange=e=>{sOn=e.target.checked;LAG.forEach(l=>map.setLayoutProperty(l,'visibility',sOn?'visible':'none'))};
  map.on('mouseenter','tram',()=>map.getCanvas().style.cursor='pointer');map.on('mouseleave','tram',()=>map.getCanvas().style.cursor='');
  map.on('click','tram',e=>{const p=e.features[0].properties,l=SV.linjer[p.r];
@@ -337,7 +343,7 @@ map.on('load',async()=>{
     else if(z<SV_MINZ)h=`<p class="hint">Zooma in över Göteborg för att se vagnarna.</p><button class="sbtn" id="sgo">Visa Göteborg</button>`;
     else{const per={};ut.forEach(f=>per[f.properties.r]=(per[f.properties.r]||0)+1);
      h=`<p class="hint">Klockan ${hhmm(T/60)}${fast?' (snabbspolad)':''}: ${ut.length} vagnar i trafik enligt tidtabellen</p><div style="display:flex;flex-wrap:wrap;gap:4px">`+
-      SV.linjer.map((l,i)=>`<span title="Linje ${l.n}" style="background:${l.c};color:${l.t||'#06121b'};border-radius:5px;padding:1px 6px;font-size:11.5px;font-weight:700;opacity:${per[i]?1:.35}">${l.n} · ${per[i]||0}</span>`).join('')+'</div>'}
+      SV.linjer.map((l,i)=>`<span title="Linje ${l.n}" style="background:${l.c};color:${l.t||svText(l.c)};box-shadow:0 0 0 1px #ffffff55;border-radius:5px;padding:1px 6px;font-size:11.5px;font-weight:700;opacity:${per[i]?1:.35}">${l.n} · ${per[i]||0}</span>`).join('')+'</div>'}
     if(h!==sKlick){sKlick=h;$('slist').innerHTML=h;const b=$('sgo');if(b)b.onclick=()=>map.flyTo({center:GBG,zoom:12.5,pitch:0,duration:2500})}}}
   setTimeout(()=>requestAnimationFrame(svTick),100)}
  requestAnimationFrame(svTick)});
