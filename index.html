@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sverigekarta – SWEREF 99</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap">
 <style>
 :root{--bg:#0a0f15;--panel:#111a23;--p2:#16222e;--line:#233341;--text:#e3edf5;--muted:#8da2b3;--acc:#38a8f0;--b:#f2a24a;color-scheme:dark}
 *{box-sizing:border-box}
@@ -69,11 +70,29 @@ dt{color:var(--muted)}dd{margin:0;font-variant-numeric:tabular-nums}
 #slut .sbox{max-width:420px;background:var(--panel);border-radius:14px;padding:22px 22px 18px;text-align:center;border:2px solid var(--c);box-shadow:0 0 40px var(--c)}
 #slut.vinst{--c:#fecc00}#slut.forlust{--c:#c8102e}#slut h2{all:unset;display:block;font-size:24px;font-weight:800;letter-spacing:.04em;margin:12px 0 8px;color:var(--c)}
 #slut p{margin:6px 0 10px}.stor-fl{width:96px;height:60px;border-radius:4px;margin:0 auto;box-shadow:0 0 20px #0008}
+/* Gammal karta (historielagret) */
+#papper,#kartusch,#vindros{display:none}
+.gammal #papper{display:block;position:absolute;inset:0;pointer-events:none;z-index:1;mix-blend-mode:multiply;
+ background:radial-gradient(ellipse at center,transparent 55%,rgba(110,70,25,.5) 100%),url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' seed='7'/><feColorMatrix values='0 0 0 0 .45 0 0 0 0 .32 0 0 0 0 .15 0 0 0 .32 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.gammal #kartusch{display:flex;flex-direction:column;align-items:center;position:absolute;top:12px;right:12px;z-index:2;pointer-events:none;background:#ead9ae;color:#4a3520;
+ border:2px solid #4a3520;outline:1px solid #4a3520;outline-offset:3px;padding:6px 16px 7px;font-family:'IM Fell English',Georgia,serif;box-shadow:0 2px 12px #0006;line-height:1.15}
+#kartusch b{font-family:'IM Fell English SC',Georgia,serif;font-size:24px;letter-spacing:.12em;font-weight:400}#kartusch small{font-size:12px;font-style:italic}#kartusch em{font-size:14px;color:#a3261c;margin-top:2px}
+.gammal #vindros{display:block;position:absolute;left:12px;top:112px;width:96px;height:96px;z-index:1;pointer-events:none;opacity:.9}
+.gstad{display:flex;align-items:center;gap:3px;pointer-events:none}.gstad svg{width:15px;height:15px;flex:none}.gstad.s3 svg{width:22px;height:22px}
+.gstad span{font-family:'IM Fell English',Georgia,serif;font-size:13.5px;color:#3a2814;white-space:nowrap;text-shadow:0 0 3px #ead9ae,0 0 6px #ead9ae,0 0 2px #ead9ae}
+.gstad.s3 span{font-family:'IM Fell English SC',Georgia,serif;font-size:17px}.gstad.s1 span{font-size:12px}
+.gvatten{font-family:'IM Fell English',Georgia,serif;font-style:italic;color:#3f5a52;font-size:14px;letter-spacing:.22em;white-space:nowrap;pointer-events:none;text-shadow:0 0 4px #b3bea6}.gvatten.s2{font-size:18px;letter-spacing:.3em}
+.godjur{width:96px;pointer-events:none;opacity:.9}
+.gammal .lsk{color:#6b5030;font-family:'IM Fell English SC',Georgia,serif;font-weight:400;font-size:13px;letter-spacing:.25em;text-shadow:0 0 3px #ead9ae,0 0 6px #ead9ae;opacity:.75}.gammal .lsk.sm{font-size:10px}
+.gammal .arme img{filter:drop-shadow(0 0 3px #fff8)}.gammal .arme span{background:#f3e6c4;color:#3a2814;border:1.5px solid var(--g);font-family:'IM Fell English',Georgia,serif;font-size:12px;font-weight:400}
+.gammal .arme.sel span{background:#3a2814;color:#f3e6c4}.gammal .arme.sel img{filter:drop-shadow(0 0 4px #3a2814) drop-shadow(0 0 10px #a3261c)}
+.gammal .maplibregl-ctrl-group{background:#ead9ae}.gammal .maplibregl-ctrl-scale{background:#ead9aecc;color:#3a2814;border-color:#4a3520}
+@media (max-width:760px){.gammal #kartusch{top:8px;right:8px;padding:3px 10px 4px}#kartusch b{font-size:17px}#kartusch small{font-size:10px}#kartusch em{font-size:11px}.gammal #vindros{width:60px;height:60px;top:104px;left:8px}.godjur{width:70px}}
 @media (max-width:760px){#turbar{bottom:8px;padding:6px 8px;font-size:11.5px;gap:8px}#turbar .sbtn.stor{padding:6px 10px;font-size:12.5px}#strid{top:8px;padding:10px}#strid .tar svg{width:18px;height:18px}body{flex-direction:column}#mapw{flex:none;height:56%}aside{width:100%;flex:1;border-left:0;border-top:1px solid var(--line)}#cur{display:none}}
 </style>
 </head>
 <body>
-<div id="mapw"><div id="map"></div><div id="strid"></div><div id="slut"></div><div id="turbar" style="display:none"><div><b id="turnr"></b><span id="turmsg"></span></div><button class="sbtn stor" id="turslut">Avsluta turen</button></div><div id="cur">Flytta musen över kartan</div></div>
+<div id="mapw"><div id="map"></div><div id="papper"></div><div id="kartusch"><small>Karta öfwer</small><b>SKÅNE</b><small>med angränsande landskap</small><em>Anno 1676</em></div><div id="vindros"></div><div id="strid"></div><div id="slut"></div><div id="turbar" style="display:none"><div><b id="turnr"></b><span id="turmsg"></span></div><button class="sbtn stor" id="turslut">Avsluta turen</button></div><div id="cur">Flytta musen över kartan</div></div>
 <aside>
 <h1>Sverigekarta</h1>
 <p class="sub" id="status">Laddar data…</p>
@@ -147,7 +166,7 @@ dt{color:var(--muted)}dd{margin:0;font-variant-numeric:tabular-nums}
 <details class="sub2" data-k="skanska">
 <summary><span class="t">Skånska kriget 1676</span><label class="sw" title="Visa Skånska kriget"><input type="checkbox" id="hon" aria-label="Skånska kriget 1676"><i></i></label></summary>
 <div class="gb">
-<div class="hist"><i style="background:#3b82f6aa"></i><span>Svensk mark</span><i style="background:repeating-linear-gradient(135deg,#c8102e 0 3px,#3b82f6 3px 6px)"></i><span>Omstridd: danskt (Bohuslän norskt) fram till 1658, svenskt sedan freden i Roskilde</span><i style="background:#c8102eaa"></i><span>Danmark–Norge</span></div>
+<div class="hist"><i style="background:#ead9ae;border:1px solid #4a3520"></i><span>Svensk mark</span><i style="background:repeating-linear-gradient(135deg,#a3261c 0 1.5px,#ead9ae 1.5px 5px);border:1px solid #4a3520"></i><span>Omstridd: danskt (Bohuslän norskt) fram till 1658, svenskt sedan freden i Roskilde</span><i style="background:#c9a17e;border:1px solid #4a3520"></i><span>Danmark–Norge</span></div>
 <p class="hint">Spelet går i turer. Under din tur får varje svensk armé göra en sak: gå (tryck på armén och sedan på kartan, högst 80 km), anfalla en dansk armé inom räckhåll eller slå sig ihop med en annan svensk. Tryck sedan på <b>Avsluta turen</b> så flyttar danskarna. Varje 1 000 man ger en tärning. Besegra alla danska arméer för att vinna kriget.</p>
 <div id="alist"></div>
 <button class="sbtn" id="hreset" style="margin:6px 0">Börja om</button>
@@ -790,40 +809,44 @@ function kollaSlut(){
 /* Efter kriget: färga den omstridda marken i vinnarens färg (null = randigt igen) */
 function farglagg(sida){if(!map.getLayer('h-om'))return;
  if(sida){map.setPaintProperty('h-om','fill-pattern',null);map.setPaintProperty('h-om','fill-color',SIDA[sida].farg);map.setPaintProperty('h-om','fill-opacity',.4)}
- else{map.setPaintProperty('h-om','fill-pattern','h-rand');map.setPaintProperty('h-om','fill-opacity',.45)}}
+ else{map.setPaintProperty('h-om','fill-pattern','h-rand');map.setPaintProperty('h-om','fill-opacity',.6)}}
 
 /* Kartlager: svensk mark, omstridd mark (randig) och Danmark–Norge */
-function randMonster(){const s=16,c=document.createElement('canvas');c.width=c.height=s;const x=c.getContext('2d');
- x.fillStyle='#3b82f6';x.fillRect(0,0,s,s);x.strokeStyle='#c8102e';x.lineWidth=5;
+function randMonster(){const s=26,c=document.createElement('canvas');c.width=c.height=s;const x=c.getContext('2d');
+ x.strokeStyle='#a3261c';x.lineWidth=1.3; /* tunna röda bläckstreck på pergamentet */
  [-s,0,s].forEach(o=>{x.beginPath();x.moveTo(o,s);x.lineTo(o+s,0);x.stroke()});return x.getImageData(0,0,s,s)}
 const H_LAGER=['h-se','h-om','h-dk','h-dk-line','h-rack','h-rack-line'];
+let HTOPO=null;
 async function hInit(){
  hKlar=true;
  ['se','dk'].forEach(s=>[0,1].forEach(f=>BILD[s+f]=armeBild(s,f)));
  map.addImage('h-rand',randMonster());
  map.addSource('h-lsk',{type:'geojson',data:EMPTY});map.addSource('h-dk',{type:'geojson',data:EMPTY});
- map.addLayer({id:'h-se',type:'fill',source:'h-lsk',filter:['!',['in',['get','namn'],['literal',OMSTRIDD]]],paint:{'fill-color':'#3b82f6','fill-opacity':.28}},'mask');
- map.addLayer({id:'h-om',type:'fill',source:'h-lsk',filter:['in',['get','namn'],['literal',OMSTRIDD]],paint:{'fill-pattern':'h-rand','fill-opacity':.45}},'mask');
- map.addLayer({id:'h-dk',type:'fill',source:'h-dk',paint:{'fill-color':'#c8102e','fill-opacity':.32}},'se-glow');
+ map.addLayer({id:'h-se',type:'fill',source:'h-lsk',filter:['!',['in',['get','namn'],['literal',OMSTRIDD]]],paint:{'fill-color':'#3b82f6','fill-opacity':0}},'mask');
+ map.addLayer({id:'h-om',type:'fill',source:'h-lsk',filter:['in',['get','namn'],['literal',OMSTRIDD]],paint:{'fill-pattern':'h-rand','fill-opacity':.6}},'mask');
+ map.addLayer({id:'h-dk',type:'fill',source:'h-dk',paint:{'fill-color':'#a8452f','fill-opacity':.22}},'se-glow');
  map.addSource('h-rack',{type:'geojson',data:EMPTY});
- map.addLayer({id:'h-rack',type:'fill',source:'h-rack',paint:{'fill-color':'#ffffff','fill-opacity':.06}},'se-glow');
- map.addLayer({id:'h-rack-line',type:'line',source:'h-rack',paint:{'line-color':'#ffffff','line-width':1.5,'line-dasharray':[3,2],'line-opacity':.7}},'se-glow');
- map.addLayer({id:'h-dk-line',type:'line',source:'h-dk',paint:{'line-color':'#ff7a88','line-width':1,'line-opacity':.8}},'se-glow');
+ map.addLayer({id:'h-rack',type:'fill',source:'h-rack',paint:{'fill-color':'#4a3520','fill-opacity':.06}},'se-glow');
+ map.addLayer({id:'h-rack-line',type:'line',source:'h-rack',paint:{'line-color':'#4a3520','line-width':1.5,'line-dasharray':[3,2],'line-opacity':.8}},'se-glow');
+ map.addLayer({id:'h-dk-line',type:'line',source:'h-dk',paint:{'line-color':'#7a2a1c','line-width':2.2,'line-dasharray':[2,1.5],'line-opacity':.9}},'se-glow');
  try{const r=await fetch('data/landskap.geojson');const j=await r.json();const l=j.features.filter(x=>x.properties.namn);LANDH=l;map.getSource('h-lsk').setData(fc(l))}catch(e){}
  try{const topo=await (await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json')).json();
-  map.getSource('h-dk').setData(fc(topojson.feature(topo,topo.objects.countries).features.filter(x=>['Denmark','Norway'].includes(x.properties.name))))}catch(e){}
+  HTOPO=topo;map.getSource('h-dk').setData(fc(topojson.feature(topo,topo.objects.countries).features.filter(x=>['Denmark','Norway'].includes(x.properties.name))))}catch(e){}
  hSkapa()}
 async function hVisa(on){
  hOn=on;if(on&&!hKlar)await hInit();
  H_LAGER.forEach(l=>map.getLayer(l)&&map.setLayoutProperty(l,'visibility',on?'visible':'none'));
  ARM.forEach(a=>on?a.m.addTo(map):a.m.remove());
+ await gammalStil(on,HTOPO);ARM.forEach(a=>{if(on){a.m.remove();a.m.addTo(map)}}); /* arméerna ska ligga överst */
  if(on){ /* släck zoner och landskapsdjur så att kartan blir lättare att läsa. De tänds igen när historien släcks. */
-  hSparat={zon:$('zon').checked,djur:$('don').checked};
+  hSparat={zon:$('zon').checked,djur:$('don').checked,fon:$('fon').checked,son:$('son').checked};
+  ['fon','son'].forEach(k=>{if(hSparat[k]&&$(k).onchange){$(k).checked=false;$(k).onchange({target:$(k)})}}); /* färjor och spårvagnar fanns inte 1676 */
   if(hSparat.zon){$('zon').checked=false;$('zon').onchange({target:$('zon')})}
   if(hSparat.djur&&$('don').onchange){$('don').checked=false;$('don').onchange({target:$('don')})}
   map.fitBounds([[11.8,55.3],[14.6,56.6]],{padding:{top:20,bottom:50,left:20,right:20},duration:1800,pitch:0,bearing:0})}
  else{$('strid').style.display='none';$('slut').style.display='none';valdA=null;
-  if(hSparat){if(hSparat.zon){$('zon').checked=true;$('zon').onchange({target:$('zon')})}if(hSparat.djur&&$('don').onchange){$('don').checked=true;$('don').onchange({target:$('don')})}}}
+  if(hSparat){if(hSparat.zon){$('zon').checked=true;$('zon').onchange({target:$('zon')})}if(hSparat.djur&&$('don').onchange){$('don').checked=true;$('don').onchange({target:$('don')})}
+   ['fon','son'].forEach(k=>{if(hSparat[k]&&$(k).onchange){$(k).checked=true;$(k).onchange({target:$(k)})}})}}
  hRita()}
 let kartaKlar=false;map.on('load',()=>{kartaKlar=true;if($('hon').checked)hVisa(true)});
 $('hon').onchange=e=>{if(kartaKlar)hVisa(e.target.checked)};
@@ -832,6 +855,125 @@ $('turslut').onclick=()=>{if(tur==='se'&&!upptagen)danskTur()};
 $('alist').onclick=e=>{const b=e.target.closest('button');if(!b)return;const a=ARM[b.dataset.i];if(a.borta)return;
  map.easeTo({center:a.pos,zoom:Math.max(map.getZoom(),7.5),duration:1200});armeKlick(a)};
 
+/* ===== Gammal karta: pergamentstil när historielagret är på =====
+   Allt ritas här i koden: skogar, berg, städer, vindros och sjöodjur. Inga bilder hämtas utifrån.
+   Typsnittet IM Fell English kommer från Google Fonts (fri licens, OFL).
+   Skogarnas och bergens platser är UNGEFÄRLIGA och slumpas fram (alltid likadant) inom landskapen. */
+const BLACK='#4a3520',PAPPER='#ead9ae',HAV='#b3bea6',UTLAND='#d8c8a0';
+/* Städer 1676: [namn, längd, bredd, storlek] 3 = huvudstad, 2 = stad, 1 = liten stad (syns först när man zoomar in) */
+const STADER=[['Köpenhamn',12.568,55.676,3],['Stockholm',18.07,59.33,3],['Malmö',13.0,55.605,2],['Lund',13.19,55.705,2],['Helsingborg',12.695,56.045,2],
+ ['Landskrona',12.83,55.87,2],['Kristianstad',14.155,56.03,2],['Ystad',13.82,55.43,2],['Trelleborg',13.16,55.375,1],['Simrishamn',14.355,55.555,1],
+ ['Ängelholm',12.86,56.245,1],['Halmstad',12.857,56.674,2],['Laholm',13.04,56.51,1],['Varberg',12.25,57.106,1],['Göteborg',11.967,57.707,2],
+ ['Marstrand',11.585,57.887,1],['Bohus',11.99,57.86,1],['Uddevalla',11.94,58.35,1],['Kalmar',16.36,56.663,2],['Karlshamn',14.86,56.17,1],['Sölvesborg',14.585,56.05,1],
+ ['Växjö',14.81,56.88,1],['Jönköping',14.16,57.78,2],['Linköping',15.62,58.41,2],['Norrköping',16.19,58.59,2],['Uppsala',17.64,59.86,2],['Visby',18.295,57.64,2],
+['Christiania',10.75,59.91,2]];
+/* Hav och sjöar: [namn, längd, bredd, storlek] */
+const VATTEN=[['Öresund',12.62,55.93,1],['Kattegatt',11.6,56.85,2],['Hanöbukten',14.62,55.82,1],['Östersjön',15.7,55.45,2],['Skagerrak',10.2,58.05,2],
+ ['Bottenhavet',19.6,61.8,2],['Bottenviken',22.6,64.6,2],['Vänern',13.35,58.95,1],['Vättern',14.55,58.3,1]];
+/* Åsar i Skåne och Halland där det ritas kullar: från punkt till punkt */
+const ASAR=[[[12.75,56.44],[13.28,56.36]],[[13.13,56.14],[13.55,55.97]],[[13.72,55.92],[14.02,55.74]],[[13.28,55.61],[13.56,55.55]]];
+/* Hur tät skogen är i varje landskap (0–1) */
+const SKOG={Skåne:.05,Blekinge:.6,Öland:.08,Halland:.45,Småland:.75,Gotland:.3,Västergötland:.45,Östergötland:.45,Bohuslän:.3,Dalsland:.6,Närke:.4,
+ Södermanland:.45,Värmland:.75,Västmanland:.55,Uppland:.4,Gästrikland:.7,Dalarna:.7,Hälsingland:.75,Härjedalen:.6,Medelpad:.75,Ångermanland:.75,
+ Jämtland:.6,Västerbotten:.7,Lappland:.55,Norrbotten:.65};
+
+function slump(fro){let a=fro;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+/* Små bilder i bläckstil, ritade i en ruta 64 x 64 */
+function bild(rita){const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');
+ g.strokeStyle=BLACK;g.fillStyle=PAPPER;g.lineWidth=2.2;g.lineCap=g.lineJoin='round';rita(g);return g.getImageData(0,0,64,64)}
+const IKONER={
+ gran:g=>{[[20,50,13],[34,46,15],[47,52,12]].forEach(([x,y,h])=>{g.beginPath();g.moveTo(x,y-h*2.1);g.lineTo(x+h*.55,y);g.lineTo(x-h*.55,y);g.closePath();g.fill();g.stroke();
+  g.beginPath();g.moveTo(x,y);g.lineTo(x,y+5);g.stroke()})},
+ lov:g=>{[[22,40,10],[40,36,12]].forEach(([x,y,r])=>{g.beginPath();g.moveTo(x,y+r+8);g.lineTo(x,y+r-2);g.stroke();
+  g.beginPath();g.arc(x,y,r,0,7);g.fill();g.stroke();g.beginPath();g.arc(x+r*.35,y+r*.2,r*.5,.2,1.6);g.stroke()})},
+ berg:g=>{const topp=(x,y,b,h)=>{g.beginPath();g.moveTo(x-b,y);g.lineTo(x-b*.15,y-h);g.lineTo(x+b,y);g.fill();g.stroke();
+  for(let i=1;i<5;i++){const t=i/5;g.beginPath();g.moveTo(x-b*.15+(b*1.15)*t*.9,y-h+h*t*.9);g.lineTo(x-b*.15+(b*.6)*t,y);g.stroke()}
+  g.beginPath();g.moveTo(x-b*.15,y-h);g.lineTo(x-b*.05,y-h*.55);g.lineTo(x+b*.2,y-h*.35);g.stroke()};
+  g.lineWidth=2;topp(44,52,16,26);g.lineWidth=2.3;topp(26,56,20,38)},
+ kulle:g=>{g.beginPath();g.moveTo(8,48);g.quadraticCurveTo(32,18,56,48);g.fill();g.stroke();
+  [[36,30,44,44],[42,34,50,46],[30,28,36,44]].forEach(([a,b,c,d])=>{g.lineWidth=1.6;g.beginPath();g.moveTo(a,b);g.lineTo(c,d);g.stroke()})},
+ vag:g=>{g.lineWidth=2;g.strokeStyle='#5d6f62';[[14,30],[30,40]].forEach(([x,y])=>{g.beginPath();g.moveTo(x,y);g.quadraticCurveTo(x+5,y-6,x+10,y);g.quadraticCurveTo(x+15,y+6,x+20,y);g.stroke()})}};
+
+/* Vindros, rubrikram, sjöodjur och torn som SVG */
+const VINDROS=`<svg viewBox="-50 -50 100 100">${[0,45,90,135,180,225,270,315].map((a,i)=>{const l=i%2?30:46,b=i%2?6:9;
+ return `<g transform="rotate(${a})"><path d="M0 ${-l} L${b} 0 L0 0Z" fill="${BLACK}"/><path d="M0 ${-l} L${-b} 0 L0 0Z" fill="${i===0?'#a3261c':PAPPER}" stroke="${BLACK}" stroke-width="1.2"/></g>`}).join('')}
+ <circle r="22" fill="none" stroke="${BLACK}" stroke-width="1"/><circle r="4" fill="${PAPPER}" stroke="${BLACK}" stroke-width="1.5"/>
+ <text y="-48" text-anchor="middle" font-size="12" fill="#a3261c" font-family="IM Fell English SC,serif" dy="-1">N</text></svg>`;
+const ODJUR=`<svg viewBox="0 0 120 50"><g fill="#c9c6a8" stroke="${BLACK}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+ <path d="M8 36 C14 20 22 14 30 18 C34 20 34 26 30 30 L28 36"/><circle cx="25" cy="21" r="1.6" fill="${BLACK}"/><path d="M8 36 L2 34 L6 39Z"/>
+ <path d="M42 36 C46 22 58 22 62 36"/><path d="M48 25 l2-6 l3 5 M54 24 l3-5 l2 6"/>
+ <path d="M74 36 C78 26 88 26 92 36"/><path d="M80 28 l2-5 l3 4"/>
+ <path d="M102 36 C104 30 110 28 114 24 C112 30 110 33 108 36"/></g>
+ <g fill="none" stroke="#5d6f62" stroke-width="1.6"><path d="M2 42 q6 -4 12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0"/></g></svg>`;
+const TORN=n=>n===3?`<svg viewBox="0 0 28 28"><path d="M4 26V12l3-3 3 3V8l4-5 4 5v4l3-3 3 3v14Z" fill="${PAPPER}" stroke="${BLACK}" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 26v-6a2 2 0 0 1 4 0v6" fill="${BLACK}"/><path d="M14 3V-1l5 1.5-5 1.5" fill="#a3261c" stroke="${BLACK}" stroke-width=".8"/></svg>`
+ :`<svg viewBox="0 0 20 20"><path d="M4 18V9l2-2V4h2v2h4V4h2v3l2 2v9Z" fill="${PAPPER}" stroke="${BLACK}" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.5 18v-4a1.5 1.5 0 0 1 3 0v4" fill="${BLACK}"/></svg>`;
+
+let gKlar=false,gMarks=[],gSparat=null;
+/* Kartans vanliga färger som byts ut, och de nya: [lager, egenskap, ny färg] */
+const G_FARG=[['bg','background-color',PAPPER],['mask','fill-color',HAV],['lakes-fill','fill-color',HAV],['lakes-line','line-color',BLACK],
+ ['se-line','line-color',BLACK],['se-line','line-width',1.3],['se-glow','line-opacity',0],
+ ['hill','hillshade-shadow-color','#6b4a26'],['hill','hillshade-highlight-color','#fff6dc'],['hill','hillshade-accent-color','#8a6a40'],
+ ['lsk-line','line-color','#6b5030'],['lsk-line','line-opacity',.55],['lsk-glow','line-opacity',0]];
+
+async function gInit(topo){
+ gKlar=true;
+ Object.entries(IKONER).forEach(([k,r])=>map.addImage('g-'+k,bild(r),{pixelRatio:2}));
+ let lj=LSK;if(!lj)try{lj=await (await fetch('data/landskap.geojson')).json()}catch(e){}
+ const R=slump(1676),pkt=[],land=lj?lj.features.filter(x=>x.properties.mark):[];
+ const norge=topo&&topojson.feature(topo,topo.objects.countries).features.find(x=>x.properties.name==='Norway');
+ const norgeKant=norge?turf.coordAll(turf.simplify(norge,{tolerance:.03})).filter(c=>c[1]<69.5&&c[0]>11):null;
+ const nara=(p,km)=>{const k=Math.cos(p[1]*Math.PI/180);return norgeKant.some(c=>{const dx=(c[0]-p[0])*k*111,dy=(c[1]-p[1])*111;return dx*dx+dy*dy<km*km})};
+ const fjall=['Lappland','Jämtland','Härjedalen','Dalarna'];
+ /* skogar och berg i Sverige: ett rutnät med lite slump */
+ land.forEach(omr=>{const ls=omr.properties.mark,bb=turf.bbox(omr);
+  for(let y=bb[1];y<bb[3];y+=.1)for(let x=bb[0];x<bb[2];x+=.19/Math.cos(y*Math.PI/180)*.55){
+   const p=[x+(R()-.5)*.12,y+(R()-.5)*.06],r=R();if(!turf.booleanPointInPolygon(p,omr))continue;
+   let typ=null;
+   if(fjall.includes(ls)&&norgeKant){if(r<.75&&nara(p,ls==='Lappland'?75:45))typ='berg'}
+   if(!typ&&turf.distance(p,[14.3,57.35])<55&&r<.18)typ='kulle';
+   let s=SKOG[ls]||0;if(ls==='Skåne'&&p[0]>13.5&&p[1]>55.93)s=.7;if(ls==='Halland'&&p[0]>12.6)s=.6;
+   if(!typ&&r<s)typ=p[1]>57.6||R()<.55?'gran':'lov';
+   if(typ)pkt.push({type:'Feature',properties:{ik:'g-'+typ,s:typ==='berg'?1.1:.8+R()*.3,r:R()},geometry:{type:'Point',coordinates:p}})}});
+ /* berg i Norge */
+ if(norge){const bb=turf.bbox(norge);for(let y=57.9;y<65.5;y+=.16)for(let x=4.5;x<bb[2];x+=.35){const p=[x+(R()-.5)*.2,y+(R()-.5)*.08];
+  if(R()<.7&&turf.booleanPointInPolygon(p,norge))pkt.push({type:'Feature',properties:{ik:'g-berg',s:1+R()*.3,r:R()},geometry:{type:'Point',coordinates:p}})}}
+ /* kullar längs åsarna i Skåne */
+ ASAR.forEach(([a,b])=>{const n=Math.ceil(turf.distance(a,b)/6);for(let i=0;i<=n;i++)pkt.push({type:'Feature',properties:{ik:'g-kulle',s:.75,r:0},geometry:{type:'Point',coordinates:[a[0]+(b[0]-a[0])*i/n,a[1]+(b[1]-a[1])*i/n+(R()-.5)*.02]}})});
+ /* vågor i havet */
+ const allaLand=topo?topojson.feature(topo,topo.objects.countries).features.filter(x=>{const b=turf.bbox(x);return b[2]>8&&b[0]<24&&b[3]>53.5&&b[1]<66}).map(x=>({x,b:turf.bbox(x)})):[];
+ const vag=[];for(let y=54.2;y<65.5;y+=.2)for(let x=8;x<24;x+=.4){const p=[x+(R()-.5)*.3,y+(R()-.5)*.1];if(R()>.35)continue;
+  if(allaLand.some(({x:f,b})=>p[0]>=b[0]&&p[0]<=b[2]&&p[1]>=b[1]&&p[1]<=b[3]&&turf.booleanPointInPolygon(p,f)))continue;
+  vag.push({type:'Feature',properties:{ik:'g-vag',s:.8,r:R()},geometry:{type:'Point',coordinates:p}})}
+ map.addSource('g-land',{type:'geojson',data:topo?fc(topojson.feature(topo,topo.objects.countries).features.filter(x=>x.properties.name!=='Sweden')):EMPTY});
+ map.addSource('g-pkt',{type:'geojson',data:fc(pkt)});map.addSource('g-vag',{type:'geojson',data:fc(vag)});
+ map.addLayer({id:'g-land',type:'fill',source:'g-land',paint:{'fill-color':UTLAND}},'h-dk');
+ map.addLayer({id:'g-land-line',type:'line',source:'g-land',paint:{'line-color':BLACK,'line-width':1,'line-opacity':.8}},'h-dk');
+ /* utzoomat visas bara en del av träden och bergen, annars blir det för plottrigt */
+ const storlek=['interpolate',['linear'],['zoom'],4,['case',['<',['get','r'],.2],['*',.42,['get','s']],0],6,['case',['<',['get','r'],.5],['*',.6,['get','s']],0],7.5,['*',.8,['get','s']],10,['*',1.2,['get','s']]];
+ map.addLayer({id:'g-vag',type:'symbol',source:'g-vag',layout:{'icon-image':['get','ik'],'icon-size':storlek,'icon-allow-overlap':true,'icon-ignore-placement':true}},'se-glow');
+ map.addLayer({id:'g-pkt',type:'symbol',source:'g-pkt',layout:{'icon-image':['get','ik'],'icon-size':storlek,'icon-allow-overlap':true,'icon-ignore-placement':true,'symbol-sort-key':['get','s'],'symbol-z-order':'viewport-y'}},'se-glow');
+ /* städer och vattennamn som etiketter */
+ STADER.forEach(([n,x,y,s])=>{const el=document.createElement('div');el.className='gstad s'+s;el.innerHTML=TORN(s)+`<span>${n}</span>`;
+  gMarks.push({el,s,m:new maplibregl.Marker({element:el,anchor:'left',offset:[-8,0]}).setLngLat([x,y])})});
+ VATTEN.forEach(([n,x,y,s])=>{const el=document.createElement('div');el.className='gvatten s'+s;el.textContent=n;
+  gMarks.push({el,s,vatten:true,m:new maplibregl.Marker({element:el}).setLngLat([x,y])})});
+ const od=document.createElement('div');od.className='godjur';od.innerHTML=ODJUR;od.title='Här finns odjur';
+ gMarks.push({el:od,s:2,m:new maplibregl.Marker({element:od}).setLngLat([12.15,56.45])});
+ map.on('zoom',gZoom)}
+function gZoom(){const z=map.getZoom();gMarks.forEach(g=>g.el.style.display=(g.s===1&&z<6.6)||(g.s===2&&g.vatten&&z>9)?'none':'')}
+
+async function gammalStil(on,topo){
+ if(on&&!gKlar)await gInit(topo);
+ if(!gKlar)return;
+ document.body.classList.toggle('gammal',on);
+ ['g-land','g-land-line','g-pkt','g-vag'].forEach(l=>map.setLayoutProperty(l,'visibility',on?'visible':'none'));
+ gMarks.forEach(g=>on?g.m.addTo(map):g.m.remove());if(on)gZoom();
+ if(on){gSparat=G_FARG.map(([l,p])=>map.getLayer(l)?[l,p,map.getPaintProperty(l,p)]:null).filter(Boolean);
+  G_FARG.forEach(([l,p,v])=>map.getLayer(l)&&map.setPaintProperty(l,p,v))}
+ else if(gSparat){gSparat.forEach(([l,p,v])=>map.setPaintProperty(l,p,v===undefined?null:v));gSparat=null}}
+
+$('vindros').innerHTML=VINDROS;
 </script>
 </body>
 </html>
