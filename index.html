@@ -367,7 +367,8 @@ const LDJUR={Skåne:['kronhjort','Kronhjort'],Blekinge:['ekoxe','Ekoxe'],Öland:
  Ångermanland:['baver','Bäver'],Jämtland:['alg','Älg'],Västerbotten:['storspov','Storspov'],Lappland:['fjallrav','Fjällräv'],Norrbotten:['lavskrika','Lavskrika']};
 /* Hur djuren rör sig. Hastighet i bildpunkter per sekund på skärmen. */
 const FLYG=['naktergal','knolsvan','korp','fiskgjuse','havsorn','berguv','lavskrika'],SIM=['lax','knubbsal'];
-const SATT=k=>FLYG.includes(k)?{v:10,vila:[0,0],glod:'#8fd0f7'}:SIM.includes(k)?{v:4,vila:[1,4],glod:'#5fe0d0'}:k==='hare'?{v:7,vila:[1,4],glod:'#f2c46a'}:{v:4.5,vila:[1.5,6],glod:'#f2c46a'};
+/* v = fart i bildpunkter per sekund, vila = hur länge djuret står still (sekunder, minst och högst). Ändra fritt. */
+const SATT=k=>FLYG.includes(k)?{v:5,vila:[3,8],glod:'#8fd0f7'}:SIM.includes(k)?{v:2,vila:[6,14],glod:'#5fe0d0'}:k==='hare'?{v:3.5,vila:[6,16],glod:'#f2c46a'}:{v:2.2,vila:[8,20],glod:'#f2c46a'};
 
 /* Siluetterna ritas i en ruta 100 x 100, med djuret vänt åt höger och marken vid y = 86.
    f = bildruta 0 eller 1 (ben och vingar växlar när djuret rör sig). */
@@ -446,14 +447,16 @@ function nyttMal(d){ /* en ny punkt inom landskapet dit djuret kan gå i rak lin
   if(ok)return m}
  return null}
 function djurSteg(d,t,dt){
- if(d.vilaTill>t){d.f=0;return}
+ if(d.vilaTill>t){d.f=FLYG.includes(d.k)?1:0;return}
  if(!d.mal){d.mal=nyttMal(d);if(!d.mal){d.vilaTill=t+2000;return}}
  const lat=d.pos[1],mpp=40075016*Math.cos(lat*R)/(512*Math.pow(2,map.getZoom()));
  const km=d.satt.v*mpp/1000*dt/1000,kvar=turf.distance(d.pos,d.mal);
  const dx=d.mal[0]-d.pos[0];if(Math.abs(dx)>1e-6)d.vanster=dx<0;
  if(kvar<=km){d.pos=d.mal;d.mal=null;const[a,b]=d.satt.vila;d.vilaTill=t+(a+Math.random()*(b-a))*1000}
  else{const r=km/kvar;d.pos=[d.pos[0]+dx*r,d.pos[1]+(d.mal[1]-d.pos[1])*r]}
- d.f=Math.floor(t/(FLYG.includes(d.k)?160:220))%2}
+ if(FLYG.includes(d.k)){ /* fåglar: några lugna vingslag, sedan glid en stund. Varje fågel har egen takt. */
+  const c=(t+d.fas)%d.cykel;d.f=c<d.cykel*.4?Math.floor(c/d.slag)%2:1}
+ else d.f=Math.floor((t+d.fas)/d.slag)%2}
 function djurPopup(d,ll){new maplibregl.Popup({offset:16}).setLngLat(ll||d.pos).setHTML(`<b>${d.namn}</b><br>Landskapsdjur för ${d.landskap}<br><span style="color:var(--muted)">Vandrar slumpmässigt, inte en riktig position.</span>`).addTo(map)}
 
 map.on('load',async()=>{
@@ -483,7 +486,7 @@ map.on('load',async()=>{
   const omr=LSK.features.find(x=>SIM.includes(k)?x.properties.hav===ls:FLYG.includes(k)?x.properties.namn===ls:x.properties.mark===ls); /* fåglar flyger över hela landskapet, andra djur går på land utom de stora sjöarna, säl och lax simmar i havet */
   if(!omr)return;
   [0,1].forEach(f=>[0,1].forEach(v=>map.addImage(`dj-${k}-${f}${v}`,djurIkon(k,f,v),{pixelRatio:2})));
-  const bb=turf.bbox(omr),d={k,namn,landskap:ls,omr,bb,stor:turf.distance([bb[0],bb[1]],[bb[2],bb[3]]),satt:SATT(k),vilaTill:0,mal:null,f:0,vanster:Math.random()<.5};
+  const bb=turf.bbox(omr),d={k,namn,landskap:ls,omr,bb,stor:turf.distance([bb[0],bb[1]],[bb[2],bb[3]]),satt:SATT(k),vilaTill:performance.now()+Math.random()*8000,fas:Math.random()*1e4,slag:FLYG.includes(k)?380+Math.random()*180:300+Math.random()*80,cykel:4500+Math.random()*3000,mal:null,f:0,vanster:Math.random()<.5};
   d.pos=slumpPunkt(omr,bb);if(!d.pos)return;DJUR.push(d)});
  $('dlist').innerHTML=DJUR.map((d,i)=>`<button data-i="${i}">${d.namn} <span>${d.landskap}</span></button>`).join('');
  $('dlist').onclick=e=>{const b=e.target.closest('button');if(!b)return;const d=DJUR[b.dataset.i];
