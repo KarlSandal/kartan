@@ -33,6 +33,8 @@ dt{color:var(--muted)}dd{margin:0;font-variant-numeric:tabular-nums}
 .zl{background:#0b1218cc;color:var(--c);border:1px solid var(--c);font-weight:700;font-size:11px;padding:1px 7px;border-radius:99px;white-space:nowrap;pointer-events:none}.zl.big{background:var(--c);color:#06121b;font-size:12px;padding:3px 9px;box-shadow:0 0 16px var(--c)}
 .pin{width:14px;height:14px;border-radius:50%;border:2px solid #ff5a5a;box-shadow:0 0 10px #ff5a5a;background:#ff5a5a44}
 .maplibregl-ctrl-attrib{background:#0d151dcc!important;color:var(--muted)!important}.maplibregl-ctrl-attrib a{color:var(--muted)!important}
+.fr{display:flex;gap:8px;align-items:flex-start;padding:4px 0;font-size:12.5px}.fr b{font-weight:600}.fr i{flex:none;width:9px;height:9px;border-radius:50%;background:#ffd08a;box-shadow:0 0 8px #f2a24a;margin-top:5px}.fr span{color:var(--muted)}
+.maplibregl-popup-content{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;font-size:12.5px;padding:8px 10px}.maplibregl-popup-tip{border-top-color:var(--line)!important;border-bottom-color:var(--line)!important}.maplibregl-popup-close-button{color:var(--muted)}
 @media (max-width:760px){body{flex-direction:column}#mapw{flex:none;height:56%}aside{width:100%;flex:1;border-left:0;border-top:1px solid var(--line)}#cur{display:none}}
 </style>
 </head>
@@ -62,6 +64,12 @@ dt{color:var(--muted)}dd{margin:0;font-variant-numeric:tabular-nums}
 <p class="hint">Beräknat förslag, inte verifierat mot kommunernas faktiska val. Zonerna 12 00–18 00 används söder om gränsen och 14 15–23 15 norr om den. Klicka på ett zonnamn eller i kartan för att lyfta fram zonen.</p>
 <div class="row"><span>Mittmeridianer</span><label class="sw"><input type="checkbox" data-l="zcm"><i></i></label></div>
 <div class="row"><span>Rutnät SWEREF 99 TM (100 km)</span><label class="sw"><input type="checkbox" data-l="grid"><i></i></label></div>
+
+<h2>Levande</h2>
+<div class="row"><span>Gotlandsfärjor (efter tidtabell)</span><label class="sw"><input type="checkbox" id="fon" checked><i></i></label></div>
+<div class="row"><span>Snabbspola (2 min per sekund)</span><label class="sw"><input type="checkbox" id="ffast"><i></i></label></div>
+<div id="flist"></div>
+<p class="hint">Simulerad rörelse efter en ungefärlig tidtabell, inte riktiga positioner. Förseningar och inställda turer syns inte. Tiderna står i början av färjekoden och är lätta att ändra.</p>
 
 <h2>Vald punkt</h2>
 <div id="info"><p class="hint">Ingen punkt vald ännu.</p></div>
@@ -164,7 +172,7 @@ if(!pinM){const el=document.createElement('div');el.className='pin';pinM=new map
 pinM.setLngLat([lon,lat]).addTo(map);
 $('info').innerHTML=`<dl>${k?`<dt>Kommun</dt><dd>${k.kn}</dd>`:''}<dt>WGS 84</dt><dd>${f(lat,5)}° N, ${f(lon,5)}° E</dd><dt>Grader/min</dt><dd>${dm(lat)} N, ${dm(lon)} E</dd><dt>SWEREF 99 TM</dt><dd>N ${f(t.n)} m<br>E ${f(t.e)} m</dd><dt>${k?'Zon (förslag)':'Närmaste zon'}</dt><dd>${nm(z.c)} (EPSG:${z.epsg})</dd><dt>I zonen</dt><dd>N ${f(l.n)} m<br>E ${f(l.e)} m</dd></dl>`;
 z.on=true;sel=z.epsg;upd()}
-map.on('click',e=>{const k=map.queryRenderedFeatures(e.point,{layers:['khit']})[0];pick(e.lngLat.lat,e.lngLat.lng,k&&k.properties)});
+map.on('click',e=>{if(map.getLayer('ferry')&&map.queryRenderedFeatures(e.point,{layers:['ferry']}).length)return;const k=map.queryRenderedFeatures(e.point,{layers:['khit']})[0];pick(e.lngLat.lat,e.lngLat.lng,k&&k.properties)});
 map.on('mousemove',e=>{const t=fwd(e.lngLat.lat,e.lngLat.lng,15,.9996,5e5);$('cur').textContent=`SWEREF 99 TM  N ${f(t.n)}  E ${f(t.e)}   |   ${f(e.lngLat.lat,4)}° N ${f(e.lngLat.lng,4)}° E`});
 
 map.on('load',async()=>{upd();let msg=[];
@@ -182,6 +190,88 @@ try{const j=await (await fetch('https://raw.githubusercontent.com/nvkelso/natura
 map.getSource('lakes').setData(fc(j.features.filter(x=>{const g=x.geometry,c=g.type==='Polygon'?g.coordinates[0][0]:g.coordinates[0][0][0];return c[0]>10&&c[0]<25&&c[1]>55&&c[1]<70.5})))}
 catch(err){msg.push('sjöar')}
 $('status').textContent=msg.length?'Kunde inte läsa in: '+msg.join(', '):'Klart. Sverige i mörk stil med relief.'});
+
+/* ===== Gotlandsfärjor (simulerade efter tidtabell) =====
+   Tiderna nedan är UNGEFÄRLIGA. Nynäshamn: från openferry.com/directferries (2026, kan skilja per dag och säsong).
+   Oskarshamn: GISSADE tider. Ändra fritt: [avgång, ankomst, från, till] i svensk tid. */
+const HAMN={
+ Visby:[18.2845,57.6405],Nynäshamn:[17.9570,58.9020],Oskarshamn:[16.4700,57.2630]};
+const RUTT={ /* punkter till sjöss, från Visby och ut */
+ 'Visby-Nynäshamn':[[18.2845,57.6405],[18.262,57.660],[18.215,57.800],[18.190,58.300],[18.120,58.700],[18.060,58.800],[17.990,58.870],[17.957,58.902]],
+ 'Visby-Oskarshamn':[[18.2845,57.6405],[18.250,57.637],[18.100,57.600],[17.100,57.450],[16.750,57.330],[16.560,57.275],[16.470,57.263]]};
+const FARJOR=[
+ {namn:'M/S Gotland',linje:'Visby-Nynäshamn',turer:[['07:15','10:30','Visby','Nynäshamn'],['11:30','14:45','Nynäshamn','Visby'],['16:30','19:45','Visby','Nynäshamn'],['20:45','24:00','Nynäshamn','Visby']]},
+ {namn:'Oskarshamnsfärjan',linje:'Visby-Oskarshamn',gissad:true,turer:[['07:00','09:55','Visby','Oskarshamn'],['11:00','13:55','Oskarshamn','Visby'],['16:00','18:55','Visby','Oskarshamn'],['20:00','22:55','Oskarshamn','Visby']]}];
+
+const mm=t=>{const[h,m]=t.split(':');return +h*60+ +m};
+const hhmm=x=>{x=((Math.round(x)%1440)+1440)%1440;return String(Math.floor(x/60)).padStart(2,'0')+':'+String(x%60).padStart(2,'0')};
+FARJOR.forEach(f=>{const c=RUTT[f.linje];f.line=turf.lineString(c);f.len=turf.length(f.line);
+ f.turer=f.turer.map(([a,b,fr,ti])=>({dep:mm(a),arr:mm(b),fr,ti}))});
+const sthlm=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Stockholm',hour:'numeric',minute:'numeric',second:'numeric',hourCycle:'h23'});
+function realMin(){const p={};sthlm.formatToParts(new Date()).forEach(x=>p[x.type]=x.value);return +p.hour*60+ +p.minute+ +p.second/60}
+let fast=false,simMin=null,lastT=performance.now(),fOn=true,ripples=[],lastRip=0;
+function now(){return fast?simMin:realMin()}
+
+function lage(f,m){
+ for(const t of f.turer){for(const off of [0,-1440]){const x=m-off;if(x>=t.dep&&x<t.arr){
+  const p=(x-t.dep)/(t.arr-t.dep),d=p-Math.sin(2*Math.PI*p)/(2*Math.PI)*0.3; /* lite långsammare in och ut ur hamn */
+  const fromVisby=t.fr==='Visby',km=(fromVisby?d:1-d)*f.len;return{t,km,fromVisby,p}}}}
+ /* i hamn: senaste ankomst */
+ let best=null,bd=1e9;f.turer.forEach(t=>{const since=((m-t.arr)%1440+1440)%1440;if(since<bd){bd=since;best=t}});
+ const nasta=f.turer.slice().sort((a,b)=>(((a.dep-m)%1440+1440)%1440)-(((b.dep-m)%1440+1440)%1440))[0];
+ return{hamn:best.ti,nasta}}
+
+function kolvatten(f,L){const z=map.getZoom(),w=Math.min(f.len*0.5,Math.max(3,110/Math.pow(2,z-5)));
+ const a=L.fromVisby?Math.max(0,L.km-w):L.km,b=L.fromVisby?L.km:Math.min(f.len,L.km+w);if(b-a<0.05)return null;
+ const g=turf.lineSliceAlong(f.line,a,b);if(!L.fromVisby)g.geometry.coordinates.reverse();return g}
+
+function farjaIkon(){const s=96,c=document.createElement('canvas');c.width=c.height=s;const x=c.getContext('2d');
+ x.translate(s/2,s/2);x.shadowColor='#f2a24a';x.shadowBlur=14;
+ x.beginPath();x.moveTo(0,-34);x.bezierCurveTo(14,-20,15,4,13,26);x.lineTo(-13,26);x.bezierCurveTo(-15,4,-14,-20,0,-34);x.closePath();
+ x.fillStyle='#ffe2b0';x.fill();x.shadowBlur=0;x.lineWidth=3;x.strokeStyle='#8a4b12';x.stroke();
+ x.fillStyle='#f2a24a';x.fillRect(-8,-6,16,22);x.fillStyle='#ffffff';x.beginPath();x.arc(0,-14,4,0,7);x.fill();
+ return x.getImageData(0,0,s,s)}
+
+map.on('load',()=>{
+ map.addImage('farja',farjaIkon(),{pixelRatio:2});
+ map.addSource('frutt',{type:'geojson',data:fc(FARJOR.map(f=>f.line))});
+ map.addSource('fwake',{type:'geojson',lineMetrics:true,data:EMPTY});
+ map.addSource('frip',{type:'geojson',data:EMPTY});
+ map.addSource('fpos',{type:'geojson',data:EMPTY});
+ map.addLayer({id:'frutt',type:'line',source:'frutt',paint:{'line-color':'#f2a24a','line-width':1,'line-opacity':.35,'line-dasharray':[2,4]}});
+ map.addLayer({id:'fwake-glow',type:'line',source:'fwake',layout:{'line-cap':'round'},paint:{'line-width':['interpolate',['linear'],['zoom'],5,7,10,16],'line-blur':6,
+  'line-gradient':['interpolate',['linear'],['line-progress'],0,'rgba(120,200,255,0)',1,'rgba(140,210,255,.55)']}});
+ map.addLayer({id:'fwake',type:'line',source:'fwake',layout:{'line-cap':'round'},paint:{'line-width':['interpolate',['linear'],['zoom'],5,1.5,10,4],
+  'line-gradient':['interpolate',['linear'],['line-progress'],0,'rgba(220,240,255,0)',1,'rgba(235,248,255,.95)']}});
+ map.addLayer({id:'frip',type:'circle',source:'frip',paint:{'circle-radius':['+',6,['*',['get','a'],22]],'circle-color':'rgba(0,0,0,0)',
+  'circle-stroke-color':'#bfe4ff','circle-stroke-width':1.2,'circle-stroke-opacity':['*',.7,['-',1,['get','a']]],'circle-pitch-alignment':'map'}});
+ map.addLayer({id:'ferry',type:'symbol',source:'fpos',layout:{'icon-image':'farja','icon-size':['interpolate',['linear'],['zoom'],4,.5,9,.9],
+  'icon-rotate':['get','brg'],'icon-rotation-alignment':'map','icon-allow-overlap':true,'icon-ignore-placement':true}});
+ const LAG=['frutt','fwake-glow','fwake','frip','ferry'];
+ $('fon').onchange=e=>{fOn=e.target.checked;LAG.forEach(l=>map.setLayoutProperty(l,'visibility',fOn?'visible':'none'))};
+ $('ffast').onchange=e=>{fast=e.target.checked;simMin=realMin()};
+ map.on('mouseenter','ferry',()=>map.getCanvas().style.cursor='pointer');map.on('mouseleave','ferry',()=>map.getCanvas().style.cursor='');
+ map.on('click','ferry',e=>{const p=e.features[0].properties;new maplibregl.Popup({offset:14}).setLngLat(e.lngLat).setHTML(`<b>${p.namn}</b><br>${p.txt}`).addTo(map)});
+ let lastList=0;
+ function tick(t){
+  const dt=t-lastT;lastT=t;if(fast)simMin=(simMin+dt/1000*2)%1440;
+  if(fOn){const m=now(),pos=[],wake=[],rows=[];
+   FARJOR.forEach(f=>{const L=lage(f,m);let txt;
+    if(L.t){const pt=turf.along(f.line,L.km),k2=Math.min(f.len,Math.max(0,L.km+(L.fromVisby?.3:-.3))),pt2=turf.along(f.line,k2);
+     const brg=turf.bearing(pt,pt2);
+     txt=`${L.t.fr} → ${L.t.ti}, framme ca ${hhmm(L.t.arr)}`;pos.push({type:'Feature',properties:{namn:f.namn,txt:txt+(f.gissad?' (gissad tid)':''),brg},geometry:pt.geometry});
+     const w=kolvatten(f,L);if(w)wake.push(w);
+     if(t-lastRip>700){ripples.push({c:pt.geometry.coordinates,b:t})}}
+    else{txt=`I hamn i ${L.hamn}, nästa avgång ${hhmm(L.nasta.dep)} mot ${L.nasta.ti}`;
+     pos.push({type:'Feature',properties:{namn:f.namn,txt:txt+(f.gissad?' (gissad tid)':''),brg:L.hamn==='Visby'?(f.linje==='Visby-Nynäshamn'?0:270):(L.hamn==='Nynäshamn'?180:90)},geometry:{type:'Point',coordinates:HAMN[L.hamn]}})}
+    rows.push(`<div class="fr"><i></i><div><b>${f.namn}</b><br><span>${txt}${f.gissad?' · gissad tid':''}</span></div></div>`)});
+   if(t-lastRip>700)lastRip=t;
+   ripples=ripples.filter(r=>t-r.b<3500);
+   map.getSource('fpos').setData(fc(pos));map.getSource('fwake').setData(fc(wake));
+   map.getSource('frip').setData(fc(ripples.map(r=>({type:'Feature',properties:{a:(t-r.b)/3500},geometry:{type:'Point',coordinates:r.c}}))));
+   if(t-lastList>1000){lastList=t;$('flist').innerHTML=`<p class="hint">Klockan ${hhmm(m)}${fast?' (snabbspolad)':''}</p>`+rows.join('')}}
+  setTimeout(()=>requestAnimationFrame(tick),45)}
+ requestAnimationFrame(tick)});
 </script>
 </body>
 </html>
