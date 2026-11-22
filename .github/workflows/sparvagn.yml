@@ -1,0 +1,37 @@
+# Hämtar Västtrafiks tidtabell från Trafiklab och sparar spårvagnarna i data/sparvagn.json.
+# Körs automatiskt varje måndag och torsdag natt, och kan startas för hand under fliken Actions
+# ("Uppdatera spårvagnstidtabell" -> "Run workflow").
+# Nyckeln ligger som hemlighet (Settings -> Secrets and variables -> Actions -> TRAFIKLAB_KEY)
+# och syns aldrig i koden eller på sidan.
+name: Uppdatera spårvagnstidtabell
+on:
+  schedule:
+    - cron: '23 2 * * 1,4'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: sparvagn
+jobs:
+  hamta:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Hämta tidtabellen (GTFS Regional, Västtrafik)
+        env:
+          KEY: ${{ secrets.TRAFIKLAB_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then echo "::error::Hemligheten TRAFIKLAB_KEY saknas. Lägg in den under Settings -> Secrets and variables -> Actions."; exit 1; fi
+          curl -fsSL --compressed --retry 3 -o vt.zip "https://opendata.samtrafiken.se/gtfs/vt/vt.zip?key=$KEY"
+          ls -la vt.zip
+      - name: Gör om till spårvagnsfil
+        run: |
+          mkdir -p data
+          python3 tools/sparvagn.py vt.zip data/sparvagn.json 14
+      - name: Spara i repot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898099+github-actions[bot]@users.noreply.github.com"
+          git add data/sparvagn.json
+          if git diff --cached --quiet; then echo "Ingen ändring."; exit 0; fi
+          git commit -m "Uppdatera spårvagnstidtabell"
+          git push
