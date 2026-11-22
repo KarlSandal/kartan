@@ -16,6 +16,18 @@ aside{width:330px;overflow:auto;background:var(--panel);border-left:1px solid va
 h1{font-size:16px;margin:0 0 2px;letter-spacing:.02em}
 .sub{color:var(--muted);font-size:12px;margin:0 0 12px}
 h2{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:18px 0 6px;padding-top:12px;border-top:1px solid var(--line)}
+details.grp{border-top:1px solid var(--line);margin-top:12px}
+details.grp>summary,details.sub2>summary{list-style:none;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+details>summary::-webkit-details-marker{display:none}
+details.grp>summary{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);padding:12px 0 6px}
+details.grp>summary:hover,details.sub2>summary:hover{color:var(--text)}
+details>summary .t{flex:1}
+details>summary .t:before{content:"";display:inline-block;width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-45deg);margin:0 9px 1px 1px;transition:transform .15s}
+details[open]>summary .t:before{transform:rotate(45deg);margin-bottom:3px}
+details.sub2{margin:4px 0 4px;padding-left:4px;border-left:2px solid var(--line)}
+details.sub2>summary{font-size:13px;padding:6px 0 6px 6px}
+details.sub2>.gb{padding-left:6px}
+.gb{padding-bottom:6px}
 .row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0}
 .row input[type=range]{width:100%;accent-color:var(--acc)}
 .sw{position:relative;width:34px;height:19px;flex:none}
@@ -47,48 +59,88 @@ dt{color:var(--muted)}dd{margin:0;font-variant-numeric:tabular-nums}
 <h1>Sverigekarta</h1>
 <p class="sub" id="status">Laddar data…</p>
 
-<h2>Bakgrund</h2>
+<details class="grp" data-k="bakgrund">
+<summary><span class="t">Bakgrund</span></summary>
+<div class="gb">
 <div class="row"><span>Relief (skuggning)</span><label class="sw"><input type="checkbox" data-l="hill" checked><i></i></label></div>
 <div class="row sl"><input type="range" min="0" max="100" value="55" data-s="hill" aria-label="Reliefstyrka"></div>
 <div class="row"><span>3D-terräng</span><label class="sw"><input type="checkbox" id="t3d"><i></i></label></div>
 <div class="row"><span>OpenStreetMap (kontroll)</span><label class="sw"><input type="checkbox" data-l="osm"><i></i></label></div>
 <div class="row sl"><input type="range" min="10" max="100" value="55" data-s="osm" aria-label="OSM-genomskinlighet"></div>
+</div>
+</details>
 
-<h2>Geografi</h2>
+<details class="grp" data-k="geografi" open>
+<summary><span class="t">Geografi</span></summary>
+<div class="gb">
 <div class="row"><span>Sverigekontur</span><label class="sw"><input type="checkbox" data-l="se-glow,se-line" checked><i></i></label></div>
 <div class="row"><span>Sjöar</span><label class="sw"><input type="checkbox" data-l="lakes-fill,lakes-line" checked><i></i></label></div>
 <div class="row"><span>Landskapsgränser</span><label class="sw"><input type="checkbox" id="lon" checked><i></i></label></div>
 <div class="row"><span>Landskapsnamn</span><label class="sw"><input type="checkbox" id="lnamn" checked><i></i></label></div>
 <div class="row"><span>Kommungränser</span><label class="sw"><input type="checkbox" data-l="komm-line"><i></i></label></div>
+</div>
+</details>
 
-<h2>SWEREF 99-zoner (förslag)</h2>
-<div class="row"><span>Alla zoner</span><label class="sw"><input type="checkbox" id="zon" checked><i></i></label></div>
+<details class="grp" data-k="sweref">
+<summary><span class="t">SWEREF 99-zoner (förslag)</span><label class="sw" title="Alla zoner"><input type="checkbox" id="zon" checked aria-label="Alla zoner"><i></i></label></summary>
+<div class="gb">
 <div id="zrows"></div>
 <div class="row" style="margin-top:6px"><span>Gräns syd/nord: <b id="splv">62,5</b>° N</span></div>
 <div class="row sl"><input type="range" min="60" max="65" step="0.1" value="62.5" id="spl" aria-label="Gräns mellan sydlig och nordlig zonserie"></div>
 <p class="hint">Beräknat förslag, inte verifierat mot kommunernas faktiska val. Zonerna 12 00–18 00 används söder om gränsen och 14 15–23 15 norr om den. Klicka på ett zonnamn eller i kartan för att lyfta fram zonen.</p>
 <div class="row"><span>Mittmeridianer</span><label class="sw"><input type="checkbox" data-l="zcm"><i></i></label></div>
 <div class="row"><span>Rutnät SWEREF 99 TM (100 km)</span><label class="sw"><input type="checkbox" data-l="grid"><i></i></label></div>
+</div>
+</details>
 
-<h2>Levande</h2>
-<div class="row"><span>Gotlandsfärjor (efter tidtabell)</span><label class="sw"><input type="checkbox" id="fon" checked><i></i></label></div>
+<details class="grp" data-k="trafik">
+<summary><span class="t">Trafik</span></summary>
+<div class="gb">
+<details class="sub2" data-k="farjor">
+<summary><span class="t">Gotlandsfärjor</span><label class="sw" title="Visa färjorna"><input type="checkbox" id="fon" checked aria-label="Gotlandsfärjor"><i></i></label></summary>
+<div class="gb">
 <div class="row"><span>Snabbspola (2 min per sekund)</span><label class="sw"><input type="checkbox" id="ffast"><i></i></label></div>
 <div id="flist"></div>
 <p class="hint">Simulerad rörelse efter en ungefärlig tidtabell, inte riktiga positioner. Förseningar och inställda turer syns inte. Tiderna står i början av färjekoden och är lätta att ändra.</p>
-<div class="row" style="margin-top:8px"><span>Göteborgs spårvagnar (efter tidtabell)</span><label class="sw"><input type="checkbox" id="son" checked><i></i></label></div>
+</div>
+</details>
+<details class="sub2" data-k="sparvagnar">
+<summary><span class="t">Göteborgs spårvagnar</span><label class="sw" title="Visa spårvagnarna"><input type="checkbox" id="son" checked aria-label="Göteborgs spårvagnar"><i></i></label></summary>
+<div class="gb">
 <div id="slist"><p class="hint">Laddar spårvagnstidtabellen…</p></div>
 <p class="hint">Vagnarna står där de ska vara enligt Västtrafiks tidtabell, inte där de faktiskt är. Förseningar och inställda turer syns inte. Tidtabellen hämtas automatiskt varje vecka från Trafiklab. Syns när du zoomar in över Göteborg.</p>
+</div>
+</details>
+</div>
+</details>
 
-<div class="row" style="margin-top:8px"><span>Landskapsdjur (vandrar fritt)</span><label class="sw"><input type="checkbox" id="don" checked><i></i></label></div>
+<details class="grp" data-k="djur">
+<summary><span class="t">Landskapsdjur</span><label class="sw" title="Visa djuren"><input type="checkbox" id="don" checked aria-label="Landskapsdjur"><i></i></label></summary>
+<div class="gb">
 <div class="dj" id="dlist"></div>
 <p class="hint">Varje landskap har ett landskapsdjur. De röstades fram 1988 i en omröstning som Världsnaturfonden ordnade. Djuren går, flyger eller simmar slumpmässigt inom sitt landskap. Det är bara på skoj och visar inte var djuren faktiskt lever. Tryck på ett namn för att hitta djuret.</p>
+</div>
+</details>
 
 <h2>Vald punkt</h2>
 <div id="info"><p class="hint">Ingen punkt vald ännu.</p></div>
 
-<h2>Data</h2>
+<details class="grp" data-k="data">
+<summary><span class="t">Data</span></summary>
+<div class="gb">
 <p class="hint">Datakatalogens lager kommer här.</p>
+</div>
+</details>
 </aside>
+<script>
+// Hopfällbara grupper i panelen: kom ihåg vad som är öppet (bara i den här webbläsaren)
+document.querySelectorAll('aside details[data-k]').forEach(d=>{
+ const k='panel:'+d.dataset.k;
+ try{const v=localStorage.getItem(k);if(v!==null)d.open=v==='1'}catch(e){}
+ d.addEventListener('toggle',()=>{try{localStorage.setItem(k,d.open?'1':'0')}catch(e){}});
+});
+document.querySelectorAll('aside summary .sw').forEach(l=>l.addEventListener('click',e=>e.stopPropagation()));
+</script>
 <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7.1.0/turf.min.js"></script>
@@ -495,6 +547,7 @@ map.on('load',async()=>{
    map.getSource('djur').setData(fc(DJUR.map((d,i)=>({type:'Feature',properties:{i,ik:`dj-${d.k}-${d.f}${d.vanster?1:0}`},geometry:{type:'Point',coordinates:d.pos}}))))}
   setTimeout(()=>requestAnimationFrame(dTick),50)}
  requestAnimationFrame(dTick)});
+
 </script>
 </body>
 </html>
