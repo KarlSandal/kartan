@@ -87,12 +87,29 @@ dt{color:var(--muted)}dd{margin:0;font-variant-numeric:tabular-nums}
 .gammal .arme img{filter:drop-shadow(0 0 3px #fff8)}.gammal .arme span{background:#f3e6c4;color:#3a2814;border:1.5px solid var(--g);font-family:'IM Fell English',Georgia,serif;font-size:12px;font-weight:400}
 .gammal .arme.sel span{background:#3a2814;color:#f3e6c4}.gammal .arme.sel img{filter:drop-shadow(0 0 4px #3a2814) drop-shadow(0 0 10px #a3261c)}
 .gammal .maplibregl-ctrl-group{background:#ead9ae}.gammal .maplibregl-ctrl-scale{background:#ead9aecc;color:#3a2814;border-color:#4a3520}
+/* Nordens gränser (tidsreglage) */
+#tidbar{position:absolute;left:50%;bottom:36px;transform:translateX(-50%);width:min(640px,calc(100% - 24px));background:#0d151dee;border:1px solid var(--line);border-radius:10px;padding:8px 12px 7px;z-index:2;display:none;box-shadow:0 6px 24px #0008}
+#tidbar .r1{display:flex;align-items:center;gap:10px}#tidbar input{flex:1;accent-color:var(--b);min-width:0}
+#nar{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;min-width:62px;text-align:center;letter-spacing:.02em}
+#nspela{width:38px;height:38px;border-radius:50%;padding:0;font-size:15px;flex:none}
+#nhand{font-size:12.5px;color:var(--muted);margin-top:3px;min-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#nhand b{color:var(--b);font-weight:600}
+.nchips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.nchips button{background:var(--p2);color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:0 7px;font:inherit;font-size:11px;cursor:pointer;font-variant-numeric:tabular-nums}.nchips button:hover,.nchips button.sel{color:#fff;border-color:var(--b)}
+.nleg{display:grid;grid-template-columns:auto 1fr;gap:4px 8px;font-size:12.5px;margin:6px 0}.nleg i{width:16px;height:11px;border-radius:2px;margin-top:3px}
+.nland{pointer-events:none;text-align:center;color:#fff;font-weight:800;letter-spacing:.18em;font-size:13px;text-shadow:0 0 4px #05080c,0 0 10px #05080c;white-space:nowrap;line-height:1.15}
+.nland.s1{font-size:10px;letter-spacing:.12em;font-weight:700;opacity:.9}.nland.s2{font-size:11.5px}.nland small{display:block;font-size:10px;font-weight:500;letter-spacing:.04em;color:#d7e3ec;font-style:italic}
+.nland.union{color:#ffd08a;font-size:12px;letter-spacing:.3em;opacity:.85}
+.nkrig{display:flex;flex-direction:column;align-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}.nkrig svg{width:26px;height:26px;filter:drop-shadow(0 0 5px #000)}
+.nkrig span{background:#0b1218dd;border:1px solid var(--b);color:#fff;font-size:10.5px;font-weight:600;border-radius:99px;padding:0 6px;white-space:nowrap;margin-top:1px}
+.nkrig.hand svg{width:18px;height:18px}.nkrig.hand span{border-color:#9fb3c3}
+#nnu p{margin:4px 0 8px;font-size:12.5px}#nnu b{color:var(--b)}
+#nlista .ar small{min-width:64px;text-align:right}
+@media (max-width:760px){#tidbar{bottom:8px;padding:6px 8px 5px}#nar{font-size:21px;min-width:52px}#nspela{width:32px;height:32px}.nland{font-size:11px}.nland.s1{font-size:9px}}
 @media (max-width:760px){.gammal #kartusch{top:8px;right:8px;padding:3px 10px 4px}#kartusch b{font-size:17px}#kartusch small{font-size:10px}#kartusch em{font-size:11px}.gammal #vindros{width:60px;height:60px;top:104px;left:8px}.godjur{width:70px}}
 @media (max-width:760px){#turbar{bottom:8px;padding:6px 8px;font-size:11.5px;gap:8px}#turbar .sbtn.stor{padding:6px 10px;font-size:12.5px}#strid{top:8px;padding:10px}#strid .tar svg{width:18px;height:18px}body{flex-direction:column}#mapw{flex:none;height:56%}aside{width:100%;flex:1;border-left:0;border-top:1px solid var(--line)}#cur{display:none}}
 </style>
 </head>
 <body>
-<div id="mapw"><div id="map"></div><div id="papper"></div><div id="kartusch"><small>Karta öfwer</small><b>SKÅNE</b><small>med angränsande landskap</small><em>Anno 1676</em></div><div id="vindros"></div><div id="strid"></div><div id="slut"></div><div id="turbar" style="display:none"><div><b id="turnr"></b><span id="turmsg"></span></div><button class="sbtn stor" id="turslut">Avsluta turen</button></div><div id="cur">Flytta musen över kartan</div></div>
+<div id="mapw"><div id="map"></div><div id="papper"></div><div id="kartusch"><small>Karta öfwer</small><b>SKÅNE</b><small>med angränsande landskap</small><em>Anno 1676</em></div><div id="vindros"></div><div id="strid"></div><div id="slut"></div><div id="turbar" style="display:none"><div><b id="turnr"></b><span id="turmsg"></span></div><button class="sbtn stor" id="turslut">Avsluta turen</button></div><div id="tidbar"><div class="r1"><button class="sbtn stor" id="nspela" title="Spela upp" aria-label="Spela upp">▶</button><div id="nar">1200</div><input type="range" id="ntid" min="1200" max="2026" step="1" value="1200" aria-label="År"></div><div id="nhand"></div></div><div id="cur">Flytta musen över kartan</div></div>
 <aside>
 <h1>Sverigekarta</h1>
 <p class="sub" id="status">Laddar data…</p>
@@ -163,6 +180,19 @@ dt{color:var(--muted)}dd{margin:0;font-variant-numeric:tabular-nums}
 <details class="grp" data-k="historia">
 <summary><span class="t">Historia</span></summary>
 <div class="gb">
+<details class="sub2" data-k="norden">
+<summary><span class="t">Nordens gränser 1200–idag</span><label class="sw" title="Visa Nordens gränser"><input type="checkbox" id="non" aria-label="Nordens gränser 1200–idag"><i></i></label></summary>
+<div class="gb">
+<p class="hint">Dra i tidsreglaget under kartan, eller tryck på ▶ för att se gränserna flytta sig år för år. Tryck på ett land i kartan för att se dess historia. Områden som nyss bytt ägare lyser upp en stund.</p>
+<div class="nleg" id="nleg"></div>
+<div class="nchips" id="nchips"></div>
+<p class="hint" style="margin-top:10px"><b style="color:var(--text)">Just nu</b></p>
+<div id="nnu"></div>
+<p class="hint" style="margin-top:10px"><b style="color:var(--text)">Krig och händelser</b> (tryck för att hoppa dit)</p>
+<div id="nlista"></div>
+<p class="hint">Gränserna är UNGEFÄRLIGA och ritade på dagens län och regioner, inte på de verkliga gränserna förr. Bitar som delades upp (som Karelen eller Livland) har bara en ägare åt gången. Årtal och texter är skrivna ur minnet och inte kontrollerade mot källa. Grönland och Svalbard visas inte.</p>
+</div>
+</details>
 <details class="sub2" data-k="skanska">
 <summary><span class="t">Skånska kriget 1676</span><label class="sw" title="Visa Skånska kriget"><input type="checkbox" id="hon" aria-label="Skånska kriget 1676"><i></i></label></summary>
 <div class="gb">
@@ -299,7 +329,7 @@ if(!pinM){const el=document.createElement('div');el.className='pin';pinM=new map
 pinM.setLngLat([lon,lat]).addTo(map);
 $('info').innerHTML=`<dl>${k?`<dt>Kommun</dt><dd>${k.kn}</dd>`:''}${ls?`<dt>Landskap</dt><dd>${ls.namn}${LDJUR[ls.namn]?' ('+LDJUR[ls.namn][1].toLowerCase()+')':''}</dd>`:''}<dt>WGS 84</dt><dd>${f(lat,5)}° N, ${f(lon,5)}° E</dd><dt>Grader/min</dt><dd>${dm(lat)} N, ${dm(lon)} E</dd><dt>SWEREF 99 TM</dt><dd>N ${f(t.n)} m<br>E ${f(t.e)} m</dd><dt>${k?'Zon (förslag)':'Närmaste zon'}</dt><dd>${nm(z.c)} (EPSG:${z.epsg})</dd><dt>I zonen</dt><dd>N ${f(l.n)} m<br>E ${f(l.e)} m</dd></dl>`;
 z.on=true;sel=z.epsg;upd()}
-map.on('click',e=>{if((performance.now()-armeKlickTid<400)||hKartKlick(e)||['ferry','tram','djur'].some(l=>map.getLayer(l)&&map.queryRenderedFeatures(e.point,{layers:[l]}).length))return;const k=map.queryRenderedFeatures(e.point,{layers:['khit']})[0],ls=map.getLayer('lsk-hit')&&map.queryRenderedFeatures(e.point,{layers:['lsk-hit']})[0];pick(e.lngLat.lat,e.lngLat.lng,k&&k.properties,ls&&ls.properties)});
+map.on('click',e=>{if(nOn&&nKlick(e))return;if((performance.now()-armeKlickTid<400)||hKartKlick(e)||['ferry','tram','djur'].some(l=>map.getLayer(l)&&map.queryRenderedFeatures(e.point,{layers:[l]}).length))return;const k=map.queryRenderedFeatures(e.point,{layers:['khit']})[0],ls=map.getLayer('lsk-hit')&&map.queryRenderedFeatures(e.point,{layers:['lsk-hit']})[0];pick(e.lngLat.lat,e.lngLat.lng,k&&k.properties,ls&&ls.properties)});
 map.on('mousemove',e=>{const t=fwd(e.lngLat.lat,e.lngLat.lng,15,.9996,5e5);$('cur').textContent=`SWEREF 99 TM  N ${f(t.n)}  E ${f(t.e)}   |   ${f(e.lngLat.lat,4)}° N ${f(e.lngLat.lng,4)}° E`});
 
 map.on('load',async()=>{upd();let msg=[];
@@ -849,7 +879,7 @@ async function hVisa(on){
    ['fon','son'].forEach(k=>{if(hSparat[k]&&$(k).onchange){$(k).checked=true;$(k).onchange({target:$(k)})}})}}
  hRita()}
 let kartaKlar=false;map.on('load',()=>{kartaKlar=true;if($('hon').checked)hVisa(true)});
-$('hon').onchange=e=>{if(kartaKlar)hVisa(e.target.checked)};
+$('hon').onchange=e=>{if(!kartaKlar)return;if(e.target.checked&&nOn){$('non').checked=false;nVisa(false)}hVisa(e.target.checked)};
 $('hreset').onclick=()=>{if(hKlar)hSkapa()};
 $('turslut').onclick=()=>{if(tur==='se'&&!upptagen)danskTur()};
 $('alist').onclick=e=>{const b=e.target.closest('button');if(!b)return;const a=ARM[b.dataset.i];if(a.borta)return;
@@ -974,6 +1004,204 @@ async function gammalStil(on,topo){
  else if(gSparat){gSparat.forEach(([l,p,v])=>map.setPaintProperty(l,p,v===undefined?null:v));gSparat=null}}
 
 $('vindros').innerHTML=VINDROS;
+
+/* ===== Nordens gränser 1200–idag (tidsreglage) =====
+   Kartbitarna finns i data/norden.geojson (byggs med tools/norden.mjs). Här står vem som äger varje bit och när.
+   ALLT ÄR UNGEFÄRLIGT och skrivet ur minnet, inte kontrollerat mot källa. Ändra fritt.
+   Varje rad: [från år, ägare, under vem (eller ''), kort förklaring (valfri)].
+   Ägare: SE Sverige, DK Danmark, NO Norge, FI Finland, IS Island, RU Novgorod/Ryssland/Sovjet, OT annat land, XX ingen fast gräns.
+   "Under vem" ritas som streck i den färgen: till exempel Norge under danska kungen, eller ockuperat av Tyskland (DE). */
+const KALMAR=[[1397,'SE','DK','i Kalmarunionen (periodvis utanför)'],[1523,'SE']];
+const FINL=(...a)=>[...a,[1809,'FI','RU','storfurstendöme under ryske tsaren'],[1917,'FI']];
+const NORDEN_TID={
+ 'se-svealand':[[1200,'SE'],...KALMAR],
+ 'se-norrland':[[1200,'SE','','Norrland och Lappland blev svenska gradvis'],...KALMAR],
+ skane:[[1200,'DK'],[1658,'SE']],
+ halland:[[1200,'DK'],[1645,'SE','','först som pant i 30 år, för alltid 1658']],
+ bohuslan:[[1200,'NO'],[1380,'NO','DK'],[1658,'SE']],
+ jamtland:[[1200,'NO'],[1380,'NO','DK'],[1645,'SE']],
+ gotland:[[1200,'SE'],[1361,'DK'],[1645,'SE']],
+ norge:[[1200,'NO'],[1380,'NO','DK'],[1814,'NO','SE','i union med Sverige'],[1905,'NO'],[1940,'NO','DE'],[1945,'NO']],
+ trondelag:[[1200,'NO'],[1380,'NO','DK'],[1658,'SE'],[1660,'NO','DK'],[1814,'NO','SE','i union med Sverige'],[1905,'NO'],[1940,'NO','DE'],[1945,'NO']],
+ danmark:[[1200,'DK'],[1940,'DK','DE'],[1945,'DK']],
+ bornholm:[[1200,'DK'],[1658,'SE'],[1660,'DK'],[1940,'DK','DE'],[1945,'DK']],
+ nordslesvig:[[1200,'DK','','hertigdömet Slesvig'],[1864,'OT','','Preussen, sedan Tyskland'],[1920,'DK'],[1940,'DK','DE'],[1945,'DK']],
+ 'slesvig-holstein':[[1200,'OT','','tyska grevar och danska hertigar'],[1460,'DK','','hertigdömena under danske kungen'],[1864,'OT','','Preussen, sedan Tyskland']],
+ island:[[1200,'IS','','fristat'],[1262,'IS','NO'],[1380,'IS','DK'],[1918,'IS','DK','eget kungarike i union med Danmark'],[1944,'IS','','republik']],
+ faroarna:[[1200,'NO'],[1380,'NO','DK'],[1814,'DK']],
+ aland:FINL([1200,'SE'],...KALMAR),
+ 'fi-egentliga':FINL([1200,'SE','','svenskt inflytande, inte helt säkert'],...KALMAR),
+ 'fi-tavastland':FINL([1200,'XX'],[1249,'SE'],...KALMAR),
+ 'fi-osterbotten':FINL([1200,'XX'],[1323,'SE'],...KALMAR),
+ 'fi-norra':FINL([1200,'XX'],[1323,'XX','','omstritt mellan Sverige och Novgorod'],[1595,'SE']),
+ 'fi-nordkarelen':FINL([1200,'XX'],[1323,'RU'],[1617,'SE']),
+ 'fi-kymmene':[[1200,'XX'],[1293,'SE'],...KALMAR,[1743,'RU'],[1812,'FI','RU','storfurstendöme under ryske tsaren'],[1917,'FI']],
+ viborg:[[1200,'XX'],[1293,'SE'],...KALMAR,[1721,'RU'],[1812,'FI','RU','storfurstendöme under ryske tsaren'],[1917,'FI'],[1940,'RU'],[1941,'FI'],[1944,'RU']],
+ kexholm:[[1200,'RU'],[1617,'SE'],[1721,'RU'],[1812,'FI','RU','storfurstendöme under ryske tsaren'],[1917,'FI'],[1940,'RU'],[1941,'FI'],[1944,'RU']],
+ petsamo:[[1200,'RU'],[1920,'FI'],[1944,'RU']],
+ ingermanland:[[1200,'RU'],[1617,'SE'],[1721,'RU','','S:t Petersburg grundas här 1703']],
+ 'estland-norra':[[1200,'XX'],[1219,'DK'],[1346,'OT','','Tyska orden'],[1561,'SE'],[1721,'RU'],[1918,'OT','','Estland'],[1940,'RU'],[1991,'OT','','Estland']],
+ 'estland-vast':[[1200,'XX'],[1227,'OT','','Svärdsriddarorden, sedan Tyska orden och biskopar'],[1561,'SE'],[1721,'RU'],[1918,'OT','','Estland'],[1940,'RU'],[1991,'OT','','Estland']],
+ osel:[[1200,'XX'],[1227,'OT','','biskopsdömet Ösel-Wiek'],[1559,'DK'],[1645,'SE'],[1721,'RU'],[1918,'OT','','Estland'],[1940,'RU'],[1991,'OT','','Estland']],
+ livland:[[1200,'XX'],[1227,'OT','','Svärdsriddarorden, sedan Tyska orden'],[1561,'OT','','Polen–Litauen'],[1621,'SE'],[1721,'RU'],[1918,'OT','','Estland och Lettland'],[1940,'RU'],[1991,'OT','','Estland och Lettland']],
+ lettland:[[1200,'XX'],[1227,'OT','','Tyska orden'],[1561,'OT','','Kurland och Polen–Litauen'],[1795,'RU'],[1918,'OT','','Lettland'],[1940,'RU'],[1991,'OT','','Lettland']],
+ 'pommern-n':[[1200,'OT','','hertigdömet Pommern'],[1648,'SE','','Svenska Pommern'],[1815,'OT','','Preussen, sedan Tyskland']],
+ 'pommern-s':[[1200,'OT','','hertigdömet Pommern'],[1648,'SE','','Svenska Pommern'],[1720,'OT','','Preussen']],
+ wismar:[[1200,'OT','','Mecklenburg'],[1648,'SE'],[1803,'OT','','Mecklenburg (pantsatt 1803)']],
+ bremen:[[1200,'OT','','ärkebiskopsdömet Bremen'],[1648,'SE','','Bremen-Verden'],[1719,'OT','','Hannover']]};
+const NFARG={SE:'#3b82f6',DK:'#e5484d',NO:'#f2a24a',FI:'#e8eef3',IS:'#4ade80',RU:'#9b6bd6',OT:'#5d6873',XX:'#3a4550',DE:'#111111'};
+const NUNDER={DK:'under danska kungen',SE:'i union med Sverige',NO:'under norska kungen',RU:'under ryske tsaren',DE:'ockuperat av Tyskland'};
+function nAgare(o,ar){if(o==='RU')return ar<1478?'Novgorod':ar<1721?'Ryssland':ar<1917?'Kejsardömet Ryssland':ar<1991?(ar<1922?'Sovjetryssland':'Sovjetunionen'):'Ryssland';
+ return{SE:'Sverige',DK:'Danmark',NO:'Norge',FI:'Finland',IS:'Island',OT:'annat land',XX:'ingen fast gräns'}[o]}
+
+/* Landnamn i kartan: [text, längd, bredd, från, till, storlek 1–3, bit som ger undertext] */
+const NLAND=[['SVERIGE',15.4,62.3,1200,9999,3,'se-svealand'],['NORGE',9.0,61.5,1200,9999,3,'norge'],['DANMARK',9.2,56.2,1200,9999,3,'danmark'],
+ ['ISLAND',-18.6,64.9,1200,9999,3,'island'],['FÄRÖARNA',-6.9,62.3,1200,9999,1],
+ ['FINLAND',26.4,62.6,1809,9999,3,'fi-tavastland'],['FINLAND',25.6,62.0,1323,1809,2,'',"(Österlandet, del av Sverige)"],
+ ['NOVGOROD',35.5,60.4,1200,1478,3],['RYSSLAND',35.5,60.4,1478,1922,3],['SOVJETUNIONEN',35.5,60.4,1922,1991,3],['RYSSLAND',35.5,60.4,1991,9999,3],
+ ['KALMARUNIONEN',13.5,66.6,1397,1523,9],
+ ['DANSKA ESTLAND',25.9,59.25,1219,1346,1],['SVENSKA ESTLAND',25.4,58.95,1561,1721,1],['ESTLAND',25.6,58.7,1918,1940,1],['ESTLAND',25.6,58.7,1991,9999,1],
+ ['TYSKA ORDEN',25.5,57.9,1237,1561,1],['LIVLAND',25.8,57.5,1621,1721,1],['LETTLAND',25.4,56.85,1918,1940,1],['LETTLAND',25.4,56.85,1991,9999,1],
+ ['INGERMANLAND',30.4,59.35,1617,1721,1],['SVENSKA POMMERN',13.6,54.25,1648,1815,1],['BREMEN-VERDEN',9.1,53.45,1648,1719,1],['TYSKLAND',11.0,52.9,1871,9999,1]];
+
+/* Krig och händelser: [från, till, typ (krig/hand), namn, [[längd, bredd, platsnamn], ...], text] */
+const NKRIG=[
+ [1219,1219,'krig','Danmark erövrar Estland',[[24.75,59.44,'Lyndanisse (Tallinn)']],'Valdemar Sejr erövrar norra Estland. Enligt sägnen föll Dannebrog från himlen under slaget vid Lyndanisse.'],
+ [1249,1250,'krig','Andra korståget till Finland',[[24.46,61.0,'Tavastehus']],'Birger jarl leder enligt traditionen ett korståg till Tavastland. Inre Finland hamnar under svenska kronan.'],
+ [1262,1264,'hand','Island under norska kungen',[[-21.9,64.15,'Island']],'Genom Gamla fördraget går Island in under den norske kungen. Fristatstiden är slut.'],
+ [1293,1293,'krig','Tredje korståget, Viborg grundas',[[28.73,60.71,'Viborg']],'Torgils Knutsson leder ett korståg till Karelen och grundar Viborgs slott.'],
+ [1323,1323,'hand','Freden i Nöteborg',[[31.04,59.95,'Nöteborg']],'Första gränsen mellan Sverige och Novgorod. Den går tvärs genom Finland, från Karelska näset upp mot Bottenviken.'],
+ [1346,1346,'hand','Danmark säljer Estland',[[24.75,59.44,'Reval']],'Valdemar Atterdag säljer norra Estland till Tyska orden.'],
+ [1361,1361,'krig','Valdemar Atterdag tar Gotland',[[18.29,57.64,'Visby']],'Danska armén slår de gotländska bönderna utanför Visby. Gotland blir danskt i nästan 300 år.'],
+ [1380,1380,'hand','Norge och Danmark får samma kung',[[10.75,59.91,'Norge']],'Olav Håkansson ärver Norge efter sin far och är redan kung i Danmark. Norge och Danmark hör ihop ända till 1814.'],
+ [1397,1397,'hand','Kalmarunionen',[[16.36,56.66,'Kalmar']],'Drottning Margareta låter kröna Erik av Pommern i Kalmar till kung över Danmark, Norge och Sverige. Sverige lämnar och återvänder flera gånger under unionstiden.'],
+ [1520,1523,'krig','Stockholms blodbad och befrielsekriget',[[18.07,59.33,'Stockholm']],'Kristian II låter avrätta omkring 80 personer i Stockholm i november 1520. Gustav Vasa leder ett uppror och väljs till kung 1523. Kalmarunionen är slut.'],
+ [1561,1561,'hand','Reval blir svenskt',[[24.75,59.44,'Reval']],'Staden Reval (Tallinn) och adeln i norra Estland ber Erik XIV om skydd. Början på Sveriges välde runt Östersjön.'],
+ [1563,1570,'krig','Nordiska sjuårskriget',[[12.5,56.95,'Axtorna']],'Sverige mot Danmark och Lübeck. Freden i Stettin 1570 ändrar inga gränser, men Sverige får betala för att få tillbaka Älvsborg.'],
+ [1570,1595,'krig','Långa ryska kriget',[[28.19,59.38,'Narva']],'Sverige mot Ryssland. Freden i Teusina 1595 ger Sverige norra Finland och Österbotten.'],
+ [1600,1629,'krig','Polska kriget',[[24.1,56.95,'Riga']],'Sverige mot Polen om Livland. Gustav II Adolf tar Riga 1621. Stilleståndet i Altmark 1629 ger Sverige Livland.'],
+ [1611,1613,'krig','Kalmarkriget',[[16.36,56.66,'Kalmar']],'Danmark anfaller och tar Kalmar och Älvsborg. Freden i Knäred 1613: Sverige får betala Älvsborgs lösen.'],
+ [1610,1617,'krig','Ingermanländska kriget',[[31.27,58.52,'Novgorod']],'Svenska trupper i Ryssland under den stora oredan. Freden i Stolbova 1617: Sverige får Ingermanland och Kexholms län, och Ryssland stängs ute från Östersjön.'],
+ [1630,1648,'krig','Trettioåriga kriget',[[13.78,54.14,'Peenemünde']],'Gustav II Adolf landstiger i Pommern 1630 och stupar vid Lützen 1632. Westfaliska freden 1648 ger Sverige Pommern, Wismar och Bremen-Verden.'],
+ [1643,1645,'krig','Torstensons krig',[[15.59,56.16,'Brömsebro']],'Svenska arméer anfaller Danmark från söder och i Skåne. Freden i Brömsebro 1645: Sverige får Gotland, Ösel, Jämtland och Härjedalen, och Halland för 30 år.'],
+ [1657,1658,'krig','Tåget över Bält',[[9.75,55.5,'Lilla Bält'],[11.0,55.3,'Stora Bält']],'Karl X Gustav leder armén över de frusna sunden mot Köpenhamn. Freden i Roskilde 1658: Danmark lämnar Skåne, Blekinge, Halland, Bohuslän, Bornholm och Trondheims län.'],
+ [1658,1660,'krig','Karl X Gustavs andra danska krig',[[12.57,55.68,'Köpenhamn']],'Karl X Gustav försöker ta hela Danmark men Köpenhamn håller ut. Kungen dör 1660. Freden i Köpenhamn: Bornholm och Trondheims län går tillbaka.'],
+ [1675,1679,'krig','Skånska kriget',[[13.19,55.72,'Lund']],'Danmark försöker ta tillbaka Skåne. Slaget vid Lund 1676 är ett av de blodigaste i Nordens historia. Freden i Lund 1679: gränserna blir som förut. Spela kriget i lagret Skånska kriget 1676.'],
+ [1700,1721,'krig','Stora nordiska kriget',[[28.19,59.38,'Narva 1700'],[11.39,59.12,'Fredriksten 1718']],'Sverige mot Danmark, Ryssland och Sachsen–Polen, senare även Preussen och Hannover. Karl XII vinner vid Narva 1700 men förlorar vid Poltava 1709 och stupar vid Fredriksten 1718. Freden i Nystad 1721: Estland, Livland, Ingermanland och Viborg går till Ryssland. Bremen-Verden och södra Pommern förloras 1719–1720.'],
+ [1741,1743,'krig','Hattarnas ryska krig',[[28.19,61.06,'Villmanstrand']],'Sverige anfaller Ryssland för att ta tillbaka det förlorade, men ryssarna tar Finland. Freden i Åbo 1743: gränsen flyttas till Kymmene älv.'],
+ [1788,1790,'krig','Gustav III:s ryska krig',[[26.95,60.47,'Svensksund']],'Gustav III anfaller Ryssland. Sjöslaget vid Svensksund 1790 blir en stor svensk seger. Freden i Värälä ändrar inga gränser.'],
+ [1808,1809,'krig','Finska kriget',[[22.37,63.29,'Oravais']],'Ryssland anfaller och tar Finland. Freden i Fredrikshamn 1809: Sverige förlorar Finland och Åland. Finland blir ett storfurstendöme under ryske tsaren.'],
+ [1814,1814,'krig','Kielfreden och fälttåget mot Norge',[[10.93,59.21,'Fredrikstad']],'Danmark måste lämna Norge till Sverige. Norrmännen antar en egen grundlag den 17 maj. Efter ett kort krig, Sveriges senaste, går Norge med på en union med Sverige men behåller grundlagen.'],
+ [1848,1851,'krig','Första slesvigska kriget',[[9.48,54.57,'Isted']],'Uppror i Slesvig-Holstein med hjälp från Preussen. Danmark vinner och hertigdömena blir kvar under danske kungen.'],
+ [1864,1864,'krig','Andra slesvigska kriget',[[9.71,54.92,'Dybbøl']],'Preussen och Österrike besegrar Danmark vid Dybbøl. Danmark förlorar Slesvig, Holstein och Lauenburg.'],
+ [1905,1905,'hand','Unionsupplösningen',[[10.75,59.91,'Kristiania']],'Norge lämnar unionen med Sverige utan krig, efter en folkomröstning. Haakon VII blir Norges kung.'],
+ [1917,1918,'krig','Finlands självständighet och inbördeskriget',[[24.94,60.17,'Helsingfors'],[23.76,61.5,'Tammerfors']],'Finland förklarar sig självständigt den 6 december 1917. Våren 1918 följer ett blodigt inbördeskrig mellan röda och vita.'],
+ [1918,1918,'hand','Island blir eget kungarike',[[-21.9,64.15,'Reykjavik']],'Island blir ett eget kungarike med samma kung som Danmark.'],
+ [1920,1920,'hand','Nordslesvig och Petsamo',[[9.43,55.05,'Nordslesvig'],[31.1,69.55,'Petsamo']],'Efter en folkomröstning går Nordslesvig tillbaka till Danmark. Genom freden i Dorpat får Finland Petsamo vid Ishavet.'],
+ [1921,1921,'hand','Ålandsfrågan',[[19.94,60.1,'Åland']],'Nationernas förbund bestämmer att Åland ska höra till Finland, med eget självstyre och utan militär.'],
+ [1939,1940,'krig','Vinterkriget',[[28.73,60.71,'Viborg'],[29.4,60.5,'Karelska näset']],'Sovjetunionen anfaller Finland i november 1939. Freden i Moskva 1940: Finland förlorar Viborg, Karelska näset och Ladoga-Karelen.'],
+ [1940,1945,'krig','Danmark och Norge ockuperade',[[10.75,59.91,'Oslo'],[12.57,55.68,'Köpenhamn']],'Tyskland ockuperar Danmark och Norge den 9 april 1940. Sverige är neutralt. Ockupationen slutar i maj 1945.'],
+ [1941,1944,'krig','Fortsättningskriget',[[30.3,61.0,'Karelen']],'Finland tar tillbaka Karelen i förbund med Tyskland men förlorar det igen 1944. Vid vapenstilleståndet 1944 förlorar Finland också Petsamo.'],
+ [1944,1944,'hand','Republiken Island',[[-21.1,64.25,'Þingvellir']],'Island blir republik den 17 juni 1944.'],
+ [1991,1991,'hand','Estland och Lettland fria igen',[[24.75,59.44,'Tallinn']],'Estland och Lettland blir självständiga igen när Sovjetunionen faller samman.']];
+const NAR_KNAPP=[1200,1323,1397,1523,1617,1645,1658,1721,1809,1814,1864,1905,1920,1945,2026];
+
+let nOn=false,nKlar=false,nAr=1200,nSpelar=false,nSparat=null,nMarks=[],nKrigM=[],nPop=null;
+const nTid=id=>NORDEN_TID[id]||[[1200,'XX']];
+const nLage=(id,ar)=>{const t=nTid(id);let r=t[0];for(const x of t)if(x[0]<=ar)r=x;return r};
+const nAktiva=ar=>NKRIG.filter(([fr,ti])=>ar>=fr&&ar<=Math.max(ti,fr+4));
+
+function nRand(col){const s=14,c=document.createElement('canvas');c.width=c.height=s;const x=c.getContext('2d');
+ x.strokeStyle=col;x.lineWidth=2.6;[-s,0,s].forEach(o=>{x.beginPath();x.moveTo(o,s);x.lineTo(o+s,0);x.stroke()});return x.getImageData(0,0,s,s)}
+const SVARD=`<svg viewBox="0 0 32 32"><g stroke="#1a1208" stroke-width="1.2" stroke-linejoin="round"><path d="M5 3l15 15-2 2L3 5V3z" fill="#e8eef3"/><path d="M27 3L12 18l2 2L29 5V3z" fill="#e8eef3"/>
+<path d="M9 19l4 4-2 2-4-4zM23 19l-4 4 2 2 4-4z" fill="#f2a24a"/><path d="M8 24l-4 4 1.5 1.5 4-4zM24 24l4 4-1.5 1.5-4-4z" fill="#8a5a2b"/></g></svg>`;
+const STJARNA=`<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="#0b1218" stroke="#9fb3c3" stroke-width="2"/><circle cx="10" cy="10" r="3" fill="#e8eef3"/></svg>`;
+
+async function nInit(){
+ nKlar=true;
+ let j=EMPTY;try{j=await (await fetch('data/norden.geojson')).json()}catch(e){$('status').textContent='Kunde inte läsa in data/norden.geojson'}
+ ['DK','SE','RU','NO','DE','XX'].forEach(u=>map.addImage('n-rand-'+u,nRand(u==='XX'?'#7d8a96':NFARG[u]),{pixelRatio:2}));
+ const bak=fc(j.features.filter(x=>x.properties.typ==='bakgrund')),bit=fc(j.features.filter(x=>x.properties.typ==='bit')),sjo=fc(j.features.filter(x=>x.properties.typ==='sjo'));
+ map.addSource('n-bak',{type:'geojson',data:bak});map.addSource('n-bit',{type:'geojson',data:bit,promoteId:'id'});map.addSource('n-sjo',{type:'geojson',data:sjo});
+ const fore='mask',agare=['coalesce',['feature-state','o'],'XX'],farg=['match',agare,...Object.entries(NFARG).flat(),'#3a4550'];
+ map.addLayer({id:'n-bak',type:'fill',source:'n-bak',paint:{'fill-color':['match',['get','o'],'RU',NFARG.RU,NFARG.OT],'fill-opacity':['match',['get','o'],'RU',.38,.3]}},fore);
+ map.addLayer({id:'n-fill',type:'fill',source:'n-bit',paint:{'fill-color':farg,'fill-opacity':['match',agare,'XX',.25,'OT',.36,'RU',.42,.55],'fill-color-transition':{duration:400}}},fore);
+ ['DK','SE','RU','NO','DE','XX'].forEach(u=>map.addLayer({id:'n-u-'+u,type:'fill',source:'n-bit',paint:{'fill-pattern':'n-rand-'+u,
+  'fill-opacity':u==='XX'?['case',['==',agare,'XX'],.55,0]:['case',['==',['coalesce',['feature-state','u'],''],u],u==='DE'?.6:.75,0]}},fore));
+ map.addLayer({id:'n-sjo',type:'fill',source:'n-sjo',paint:{'fill-color':'#0c1a26','fill-opacity':.9}},fore);
+ map.addLayer({id:'n-bak-line',type:'line',source:'n-bak',paint:{'line-color':'#8da2b3','line-width':.6,'line-opacity':.35}},fore);
+ map.addLayer({id:'n-line',type:'line',source:'n-bit',paint:{'line-color':'#05080c','line-width':['interpolate',['linear'],['zoom'],3,.5,7,1.2],'line-opacity':.55}},fore);
+ map.addLayer({id:'n-ny',type:'line',source:'n-bit',layout:{'line-join':'round'},paint:{'line-color':'#ffd08a','line-width':['interpolate',['linear'],['zoom'],3,5,7,10],'line-blur':5,
+  'line-opacity':['case',['boolean',['feature-state','ny'],false],.95,0],'line-opacity-transition':{duration:600}}},fore);
+ map.addLayer({id:'n-ny-kant',type:'line',source:'n-bit',paint:{'line-color':'#fff3d6','line-width':1.6,'line-opacity':['case',['boolean',['feature-state','ny'],false],.9,0]}},fore);
+ NLAND.forEach(([t,x,y,fr,ti,s,bit,under])=>{const el=document.createElement('div');el.className='nland '+(s===9?'union':'s'+s);
+  nMarks.push({el,fr,ti,t,bit,under,m:new maplibregl.Marker({element:el}).setLngLat([x,y])})});
+ const leg=[['SE','Sverige'],['DK','Danmark'],['NO','Norge'],['FI','Finland'],['IS','Island'],['RU','Novgorod / Ryssland / Sovjetunionen'],['OT','Andra länder']];
+ $('nleg').innerHTML=leg.map(([k,n])=>`<i style="background:${NFARG[k]};opacity:${k==='OT'?.7:.85}"></i><span>${n}</span>`).join('')+
+  `<i style="background:repeating-linear-gradient(135deg,${NFARG.DK} 0 2px,${NFARG.NO} 2px 6px)"></i><span>Streck: under en annan kung eller i union (till exempel Norge under Danmark)</span>`+
+  `<i style="background:repeating-linear-gradient(135deg,#111 0 2px,${NFARG.DK} 2px 6px)"></i><span>Svarta streck: ockuperat av Tyskland 1940–45</span>`+
+  `<i style="background:repeating-linear-gradient(135deg,#7d8a96 0 2px,#22303c 2px 6px)"></i><span>Ingen fast gräns, omstritt eller glest befolkat</span>`+
+  `<i style="background:none;border:2px solid #ffd08a;box-shadow:0 0 6px #ffd08a"></i><span>Har nyss bytt ägare</span>`;
+ $('nchips').innerHTML=NAR_KNAPP.map(a=>`<button data-a="${a}">${a===2026?'Idag':a}</button>`).join('');
+ $('nchips').onclick=e=>{const b=e.target.closest('button');if(b){nStopp();nSatt(+b.dataset.a)}};
+ $('nlista').innerHTML=NKRIG.map((k,i)=>`<button class="ar" data-i="${i}"><span class="nm">${k[3]}</span><small>${k[0]===k[1]?k[0]:k[0]+'–'+k[1]}</small></button>`).join('');
+ $('nlista').onclick=e=>{const b=e.target.closest('button');if(!b)return;const k=NKRIG[b.dataset.i];nStopp();nSatt(k[1]);
+  const p=k[4];if(p.length===1)map.easeTo({center:[p[0][0],p[0][1]],zoom:Math.max(map.getZoom(),4.6),duration:1200})}}
+
+/* Rita kartan för ett visst år */
+function nSatt(ar){
+ nAr=Math.max(1200,Math.min(2026,Math.round(ar)));$('ntid').value=nAr;$('nar').textContent=nAr===2026?'Idag':nAr;
+ if(!nKlar||!map.getSource('n-bit'))return;
+ Object.keys(NORDEN_TID).forEach(id=>{const t=nTid(id),l=nLage(id,nAr),forra=t.filter(x=>x[0]<=nAr).pop();
+  const fo=forra&&t[t.indexOf(forra)-1],ny=fo&&nAr-forra[0]<6&&(fo[1]!==forra[1]||(fo[2]||'')!==(forra[2]||''));
+  map.setFeatureState({source:'n-bit',id},{o:l[1],u:l[2]||'',ny:!!ny})});
+ nMarks.forEach(n=>{const vis=nOn&&nAr>=n.fr&&nAr<n.ti;
+  if(vis){let sub=n.under||'';if(n.bit){const l=nLage(n.bit,nAr);sub=l[2]?(l[3]||NUNDER[l[2]]||''):''}
+   const html=n.t+(sub?`<small>${sub}</small>`:'');if(n.el.innerHTML!==html)n.el.innerHTML=html;if(!n.vis)n.m.addTo(map)}
+  else if(n.vis)n.m.remove();n.vis=vis});
+ const akt=nAktiva(nAr),nyckel=akt.map(k=>k[3]).join('|');
+ if(nyckel!==nSatt.forra){nSatt.forra=nyckel;nKrigM.forEach(m=>m.remove());nKrigM=[];
+  if(nOn)akt.forEach(k=>k[4].forEach(([x,y,namn])=>{const el=document.createElement('div');el.className='nkrig'+(k[2]==='hand'?' hand':'');
+   el.innerHTML=(k[2]==='hand'?STJARNA:SVARD)+`<span>${namn}</span>`;el.title=k[3];
+   el.addEventListener('click',ev=>{ev.stopPropagation();nStopp();if(nPop)nPop.remove();nPop=new maplibregl.Popup({offset:18,maxWidth:'300px'}).setLngLat([x,y]).setHTML(`<b>${k[3]} (${k[0]===k[1]?k[0]:k[0]+'–'+k[1]})</b><br>${k[5]}`).addTo(map)});
+   nKrigM.push(new maplibregl.Marker({element:el}).setLngLat([x,y]).addTo(map))}));
+  $('nhand').innerHTML=akt.length?akt.map(k=>`<b>${k[3]}</b> ${k[0]===k[1]?k[0]:k[0]+'–'+k[1]}`).join(' · '):'Inga stora krig eller gränsändringar just nu';
+  $('nnu').innerHTML=akt.length?akt.map(k=>`<p><b>${k[3]} (${k[0]===k[1]?k[0]:k[0]+'–'+k[1]})</b><br>${k[5]}</p>`).join(''):'<p class="hint">Inga stora krig eller gränsändringar just det här året.</p>'}
+ document.querySelectorAll('#nchips button').forEach(b=>b.classList.toggle('sel',+b.dataset.a===nAr))}
+
+/* Spela upp: snabbt mellan händelserna, långsamt när något händer */
+function nSpela(){if(nSpelar)return nStopp();if(nAr>=2026)nSatt(1200);nSpelar=true;$('nspela').textContent='❚❚';
+ (function steg(){if(!nSpelar)return;if(nAr>=2026)return nStopp();nSatt(nAr+1);setTimeout(steg,nAktiva(nAr).length?260:55)})()}
+function nStopp(){nSpelar=false;$('nspela').textContent='▶'}
+
+/* Klick i kartan: visa bitens historia */
+function nKlick(e){const f=map.queryRenderedFeatures(e.point,{layers:['n-fill']})[0];if(!f)return false;
+ const id=f.properties.id,t=nTid(id),l=nLage(id,nAr);
+ const rad=(x,i)=>{const slut=t[i+1]?t[i+1][0]:null,nu=x===l;
+  return `<div style="${nu?'color:#fff;font-weight:600':'color:var(--muted)'}">${x[0]}–${slut||''} <span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${NFARG[x[1]]};margin:0 3px"></span>${nAgare(x[1],x[0])}${x[2]?', '+(x[3]||NUNDER[x[2]]):x[3]?' ('+x[3]+')':''}</div>`};
+ if(nPop)nPop.remove();
+ nPop=new maplibregl.Popup({maxWidth:'310px'}).setLngLat(e.lngLat).setHTML(`<b>${f.properties.namn}</b><br>År ${nAr}: <b>${nAgare(l[1],nAr)}</b>${l[2]?', '+(l[3]||NUNDER[l[2]]):l[3]?' ('+l[3]+')':''}<div style="margin-top:6px;font-size:11.5px;line-height:1.5">${t.map(rad).join('')}</div><div style="margin-top:4px;font-size:11px;color:var(--muted)">Ungefärligt, inte kontrollerat mot källa.</div>`).addTo(map);
+ return true}
+
+const N_LAGER=['n-bak','n-fill','n-u-DK','n-u-SE','n-u-RU','n-u-NO','n-u-DE','n-u-XX','n-sjo','n-bak-line','n-line','n-ny','n-ny-kant'];
+const nSlag=(id,on)=>{const i=$(id);if(i&&i.checked!==on&&i.onchange){i.checked=on;i.onchange({target:i})}};
+async function nVisa(on){
+ if(on&&$('hon').checked){$('hon').checked=false;await hVisa(false)} /* bara ett historielager åt gången */
+ nOn=on;if(on&&!nKlar)await nInit();
+ N_LAGER.forEach(l=>map.getLayer(l)&&map.setLayoutProperty(l,'visibility',on?'visible':'none'));
+ ['mask','se-glow','se-line'].forEach(l=>map.setLayoutProperty(l,'visibility',on?'none':'visible')); /* Sverigemasken döljer grannländerna, så den släcks */
+ $('tidbar').style.display=on?'block':'none';
+ if(on){nSparat={};['zon','don','fon','son','lon','lnamn'].forEach(k=>{nSparat[k]=$(k)&&$(k).checked;nSlag(k,false)});
+  ['komm-line'].forEach(l=>{nSparat[l]=map.getLayoutProperty(l,'visibility');map.setLayoutProperty(l,'visibility','none')});
+  map.fitBounds(innerWidth<760?[[4.5,54.5],[31.5,70.5]]:[[-22,53.5],[38,71.2]],{padding:{top:20,bottom:90,left:20,right:20},duration:1600,pitch:0,bearing:0})}
+ else{nStopp();if(nPop)nPop.remove();
+  if(nSparat){['zon','don','fon','son','lon','lnamn'].forEach(k=>nSparat[k]&&nSlag(k,true));if(nSparat['komm-line'])map.setLayoutProperty('komm-line','visibility',nSparat['komm-line']);nSparat=null}
+  nKrigM.forEach(m=>m.remove());nKrigM=[];nSatt.forra=null}
+ nSatt(nAr)}
+map.on('load',()=>{if($('non').checked)nVisa(true)});
+$('non').onchange=e=>{if(kartaKlar)nVisa(e.target.checked)};
+$('ntid').oninput=e=>{nStopp();nSatt(+e.target.value)};
+$('nspela').onclick=nSpela;
 </script>
 </body>
 </html>
