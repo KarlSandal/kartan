@@ -21,6 +21,7 @@ En stiliserad, interaktiv Sverigekarta som webbsida.
 - Göteborgs spårvagnar (panelen "Levande"): spårnät och vagnar efter Västtrafiks tidtabell, syns från zoomnivå 10,5. Inte riktiga positioner.
 - Landskap: alla 25 landskapsgränser med namn (panelen "Geografi"). Klick i kartan visar också landskapet.
 - Landskapsdjur (panelen "Levande"): ett egenritat djur per landskap som vandrar slumpmässigt inom sitt landskap. Fåglar flyger över hela landskapet, andra djur går på land men inte på de stora sjöarna, sälen (Bohuslän) och laxen (Halland) simmar i havet utanför kusten.
+- Historia, Skånska kriget 1676 (panelen "Historia", släckt som standard): svensk mark, omstridd mark (Skåne, Blekinge, Halland, Bohuslän) och Danmark–Norge. Egenritade arméer (ryttare med svensk eller dansk flagga). Välj en svensk armé och anfall en dansk, eller slå ihop två svenska. Striden avgörs med tärningar, en tärning per 1 000 man. Kort text om slaget vid Lund. Arméernas platser och storlek är ungefärliga, texten är skriven ur minnet och inte kontrollerad mot källa.
 
 ## Datakällor (hämtas när sidan laddas)
 - Terräng: AWS Terrain Tiles (Mapzen)
@@ -29,6 +30,7 @@ En stiliserad, interaktiv Sverigekarta som webbsida.
 - Kommuner: okfse/sweden-geojson på GitHub
 - Spårvagnar: `data/sparvagn.json` i repot. Den skapas automatiskt av GitHub Actions (`.github/workflows/sparvagn.yml`) varje måndag och torsdag från Trafiklabs GTFS Regional (Västtrafik). Nyckeln ligger som GitHub-hemlighet `TRAFIKLAB_KEY`, aldrig i koden.
 - Landskap: `data/landskap.geojson` i repot, från perliedman/svenska-landskap (Lantmäteriets distriktskarta, licens CC0), förenklad med `tools/landskap.mjs`.
+- Historiska gränser 1676: byggda av landskapen ovan (CC0) och Danmark/Norge ur world-atlas. Ungefärliga.
 - Landskapsdjur: Världsnaturfondens omröstning 1988, listan kontrollerad mot nordicperspective.com (en källa).
 
 ## På gång / ofärdigt
@@ -41,6 +43,7 @@ En stiliserad, interaktiv Sverigekarta som webbsida.
 - Eventuellt en noggrannare Sverigekontur och egna kopior av datafilerna i repot.
 
 ## Beslut och önskemål
+- Arméerna ritas som egna figurer (ryttare med flagga), inte som landskapsdjur. Grafiken ska vara enkel.
 - Landskapsdjuren ritas som egna enkla siluetter, inte bilder eller emoji. Djur som lever i vatten ska simma i vattnet, inte på land.
 - Västtrafik har inga öppna fordonspositioner utan nyckel, därför går spårvagnarna efter tidtabell.
 - Nycklar läggs bara som GitHub-hemligheter eller i webbläsarens localStorage, aldrig i koden.

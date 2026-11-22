@@ -50,11 +50,22 @@ dt{color:var(--muted)}dd{margin:0;font-variant-numeric:tabular-nums}
 .lsk{color:#f3e2b8;font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;text-shadow:0 0 4px #05080c,0 0 8px #05080c,0 0 2px #000;pointer-events:none;white-space:nowrap;opacity:.82}.lsk.sm{font-size:8.5px;letter-spacing:.1em}
 .dj{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}.dj button{background:var(--p2);color:var(--text);border:1px solid var(--line);border-radius:99px;padding:1px 8px;font:inherit;font-size:11.5px;cursor:pointer}.dj button:hover{border-color:#f2c46a}.dj button span{color:var(--muted)}
 .maplibregl-popup-content{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;font-size:12.5px;padding:8px 10px}.maplibregl-popup-tip{border-top-color:var(--line)!important;border-bottom-color:var(--line)!important}.maplibregl-popup-close-button{color:var(--muted)}
+.hist{display:grid;grid-template-columns:auto 1fr;gap:4px 8px;font-size:12.5px;margin:6px 0}.hist i{width:14px;height:10px;border-radius:2px;margin-top:4px}
+.ar{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;border-radius:6px;color:var(--text);font:inherit;font-size:12.5px;padding:4px 4px;cursor:pointer;text-align:left}.ar:hover{background:var(--p2)}.ar.sel{background:#14507a}.ar.borta{opacity:.4;text-decoration:line-through}
+.fl{flex:none;width:18px;height:12px;border-radius:2px;display:inline-block}.ar .nm{flex:1}.ar small{color:var(--muted);font-variant-numeric:tabular-nums}
+.fl.se{background:linear-gradient(90deg,transparent 31%,#fecc00 31% 44%,transparent 44%),linear-gradient(0deg,#006aa7 40%,#fecc00 40% 60%,#006aa7 60%)}
+.fl.dk{background:linear-gradient(90deg,transparent 31%,#fff 31% 42%,transparent 42%),linear-gradient(0deg,#c8102e 42%,#fff 42% 58%,#c8102e 58%)}
+.arme{display:flex;flex-direction:column;align-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}.arme img{display:block;filter:drop-shadow(0 0 6px var(--g))}
+.arme span{margin-top:-6px;background:#0b1218dd;border:1px solid var(--g);color:#fff;font-size:10.5px;font-weight:700;border-radius:99px;padding:0 6px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.arme.sel img{filter:drop-shadow(0 0 4px #fff) drop-shadow(0 0 12px #fff)}.arme.sel span{background:#fff;color:#06121b}
+#strid{position:absolute;left:50%;top:12px;transform:translateX(-50%);width:min(380px,calc(100% - 24px));max-height:calc(100% - 24px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;z-index:3;box-shadow:0 8px 30px #000a;display:none;font-size:13px}
+#strid h3{margin:0 0 8px;font-size:14px}#strid .sida{margin:6px 0}#strid .sida b{display:flex;align-items:center;gap:6px;font-size:12.5px}#strid .tar{display:flex;flex-wrap:wrap;gap:3px;margin:4px 0}
+#strid .tar svg{width:22px;height:22px}#strid .sum{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px}#strid .res{margin:8px 0 4px;font-weight:600}#strid .knapp{text-align:right}
 @media (max-width:760px){body{flex-direction:column}#mapw{flex:none;height:56%}aside{width:100%;flex:1;border-left:0;border-top:1px solid var(--line)}#cur{display:none}}
 </style>
 </head>
 <body>
-<div id="mapw"><div id="map"></div><div id="cur">Flytta musen över kartan</div></div>
+<div id="mapw"><div id="map"></div><div id="strid"></div><div id="cur">Flytta musen över kartan</div></div>
 <aside>
 <h1>Sverigekarta</h1>
 <p class="sub" id="status">Laddar data…</p>
@@ -119,6 +130,31 @@ dt{color:var(--muted)}dd{margin:0;font-variant-numeric:tabular-nums}
 <div class="gb">
 <div class="dj" id="dlist"></div>
 <p class="hint">Varje landskap har ett landskapsdjur. De röstades fram 1988 i en omröstning som Världsnaturfonden ordnade. Djuren går, flyger eller simmar slumpmässigt inom sitt landskap. Det är bara på skoj och visar inte var djuren faktiskt lever. Tryck på ett namn för att hitta djuret.</p>
+</div>
+</details>
+
+<details class="grp" data-k="historia">
+<summary><span class="t">Historia</span></summary>
+<div class="gb">
+<details class="sub2" data-k="skanska">
+<summary><span class="t">Skånska kriget 1676</span><label class="sw" title="Visa Skånska kriget"><input type="checkbox" id="hon" aria-label="Skånska kriget 1676"><i></i></label></summary>
+<div class="gb">
+<div class="hist"><i style="background:#3b82f6aa"></i><span>Svensk mark</span><i style="background:repeating-linear-gradient(135deg,#c8102e 0 3px,#3b82f6 3px 6px)"></i><span>Omstridd: danskt (Bohuslän norskt) fram till 1658, svenskt sedan freden i Roskilde</span><i style="background:#c8102eaa"></i><span>Danmark–Norge</span></div>
+<p class="hint" id="hhint"></p>
+<div id="alist"></div>
+<button class="sbtn" id="hreset" style="margin:6px 0">Börja om</button>
+<details class="sub2" data-k="lund">
+<summary><span class="t">Slaget vid Lund</span></summary>
+<div class="gb">
+<p class="hint" style="color:var(--text)">Den 4 december 1676, en kall vintermorgon strax norr om Lund, möttes den svenska armén under den 21-årige Karl XI och den dansk-norska armén under Kristian V. Danmark hade gått in i Skåne samma sommar för att ta tillbaka landskapen som förlorats 1658, och hade redan tagit bland annat Helsingborg, Landskrona och Kristianstad.</p>
+<p class="hint" style="color:var(--text)">Danskarna var fler, ungefär 12 000–13 000 mot 8 000 svenskar. Striden pågick hela dagen och båda sidor vann på var sin flygel. Till slut fick svenskarna övertaget och danskarna drog sig tillbaka mot Landskrona. Det räknas som ett av de blodigaste slagen i Nordens historia: ungefär hälften av soldaterna dog.</p>
+<p class="hint" style="color:var(--text)">Kriget fortsatte i tre år till. Vid freden i Lund 1679 blev gränsen som förut, och Skåne, Blekinge, Halland och Bohuslän förblev svenska.</p>
+<p class="hint">Kortfattat och förenklat. Siffrorna är ungefärliga och skrivna ur minnet, inte kontrollerade mot en källa.</p>
+</div>
+</details>
+<p class="hint">Gränserna är ungefärliga och följer dagens landskap. Arméernas platser och storlek är förenklade för spelet men ligger nära läget hösten 1676. Svenska Finland och Baltikum visas inte.</p>
+</div>
+</details>
 </div>
 </details>
 
@@ -236,7 +272,7 @@ if(!pinM){const el=document.createElement('div');el.className='pin';pinM=new map
 pinM.setLngLat([lon,lat]).addTo(map);
 $('info').innerHTML=`<dl>${k?`<dt>Kommun</dt><dd>${k.kn}</dd>`:''}${ls?`<dt>Landskap</dt><dd>${ls.namn}${LDJUR[ls.namn]?' ('+LDJUR[ls.namn][1].toLowerCase()+')':''}</dd>`:''}<dt>WGS 84</dt><dd>${f(lat,5)}° N, ${f(lon,5)}° E</dd><dt>Grader/min</dt><dd>${dm(lat)} N, ${dm(lon)} E</dd><dt>SWEREF 99 TM</dt><dd>N ${f(t.n)} m<br>E ${f(t.e)} m</dd><dt>${k?'Zon (förslag)':'Närmaste zon'}</dt><dd>${nm(z.c)} (EPSG:${z.epsg})</dd><dt>I zonen</dt><dd>N ${f(l.n)} m<br>E ${f(l.e)} m</dd></dl>`;
 z.on=true;sel=z.epsg;upd()}
-map.on('click',e=>{if(['ferry','tram','djur'].some(l=>map.getLayer(l)&&map.queryRenderedFeatures(e.point,{layers:[l]}).length))return;const k=map.queryRenderedFeatures(e.point,{layers:['khit']})[0],ls=map.getLayer('lsk-hit')&&map.queryRenderedFeatures(e.point,{layers:['lsk-hit']})[0];pick(e.lngLat.lat,e.lngLat.lng,k&&k.properties,ls&&ls.properties)});
+map.on('click',e=>{if((performance.now()-armeKlickTid<400)||['ferry','tram','djur'].some(l=>map.getLayer(l)&&map.queryRenderedFeatures(e.point,{layers:[l]}).length))return;const k=map.queryRenderedFeatures(e.point,{layers:['khit']})[0],ls=map.getLayer('lsk-hit')&&map.queryRenderedFeatures(e.point,{layers:['lsk-hit']})[0];pick(e.lngLat.lat,e.lngLat.lng,k&&k.properties,ls&&ls.properties)});
 map.on('mousemove',e=>{const t=fwd(e.lngLat.lat,e.lngLat.lng,15,.9996,5e5);$('cur').textContent=`SWEREF 99 TM  N ${f(t.n)}  E ${f(t.e)}   |   ${f(e.lngLat.lat,4)}° N ${f(e.lngLat.lng,4)}° E`});
 
 map.on('load',async()=>{upd();let msg=[];
@@ -550,6 +586,164 @@ map.on('load',async()=>{
    map.getSource('djur').setData(fc(DJUR.map((d,i)=>({type:'Feature',properties:{i,ik:`dj-${d.k}-${d.f}${d.vanster?1:0}`},geometry:{type:'Point',coordinates:d.pos}}))))}
   setTimeout(()=>requestAnimationFrame(dTick),50)}
  requestAnimationFrame(dTick)});
+
+/* ===== Historia: Skånska kriget 1676 =====
+   Ett litet spel: svenska och dansk-norska arméer i södra Sverige hösten 1676.
+   Gränserna byggs av landskapen i data/landskap.geojson (CC0) och av länderna i world-atlas.
+   Arméernas namn, platser och storlek är UNGEFÄRLIGA och delvis påhittade för spelet.
+   Ändra fritt i listan ARMEER: [namn, sida, antal man, [längd, bredd], kort text]. */
+const ARMEER=[
+ ['Karl XI:s huvudarmé','se',8000,[13.60,55.86],'Kungens egen armé, cirka 8 000 man. Den som vann vid Lund.'],
+ ['Malmö garnison','se',2000,[13.00,55.605],'Svenskarna höll Malmö hela kriget.'],
+ ['Smålänningarna','se',3000,[14.13,56.55],'Förstärkningar från Småland.'],
+ ['Västarmén','se',4000,[11.97,57.71],'Försvarar Göteborg mot norrmännen.'],
+ ['Kristian V:s huvudarmé','dk',12000,[13.19,55.72],'Danske kungens armé vid Lund, kanske 12 000–13 000 man.'],
+ ['Landskrona','dk',3000,[12.83,55.87],'Danskarna tog Landskrona 1676.'],
+ ['Helsingborg','dk',2000,[12.70,56.05],'Danskarna landsteg vid Råå i juni 1676 och tog Helsingborg.'],
+ ['Kristianstad','dk',3000,[14.155,56.03],'Danskarna tog Kristianstad i augusti 1676.'],
+ ['Gyldenløves norska armé','dk',4000,[11.94,58.35],'Norsk armé som gick in i Bohuslän. Norge hörde till Danmark.']];
+const OMSTRIDD=['Skåne','Blekinge','Halland','Bohuslän'];
+const SIDA={se:{namn:'Svenskarna',farg:'#3b82f6',glod:'#5aa8ff'},dk:{namn:'Danskarna',farg:'#c8102e',glod:'#ff5a6a'}};
+
+/* Ryttare med fana, vänd åt höger, i en ruta 100 x 100. f = bildruta 0 eller 1 (benen växlar när armén rör sig). */
+function ryttarForm(g,f){
+ const e=(x,y,rx,ry,r=0)=>{g.beginPath();g.ellipse(x,y,rx,ry,r,0,7);g.fill()};
+ const p=a=>{g.beginPath();a.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill()};
+ const l=(a,w)=>{g.lineWidth=w;g.beginPath();a.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.stroke()};
+ e(46,60,22,11);p([[60,55],[67,38],[76,38],[72,60]]);e(80,45,10,4.8,.75);p([[69,36],[71,29],[74,37]]); /* kropp, hals, huvud, öra */
+ p([[25,55],[14,62],[12,76],[20,67],[27,62]]); /* svans */
+ [[30,62],[36,63],[56,63],[62,62]].forEach(([x,y],i)=>{const s=(i%2?1:-1)*(f?6:-6);l([[x,y],[x+s*.5,y+14],[x+s,y+26]],3.6)});
+ e(48,40,6.5,10);e(50,25,5.2,5.2);p([[41,23],[60,23],[56,16],[45,16]]); /* ryttare, huvud, hatt */
+ l([[48,46],[53,58],[50,66]],4.5); /* ben */
+ l([[56,2],[56,58]],2.2);l([[51,36],[56,32]],3.5); /* fanstång och arm */
+ return[52,24]}
+function flagga(g,sida,f){
+ const v=f?2:-2,y0=3,y1=21,x0=26,x1=55; /* fanan fladdrar lite */
+ const kant=new Path2D();kant.moveTo(x1,y0);kant.quadraticCurveTo((x0+x1)/2,y0+v,x0,y0+v*.5);kant.lineTo(x0,y1+v*.5);kant.quadraticCurveTo((x0+x1)/2,y1+v,x1,y1);kant.closePath();
+ g.save();g.clip(kant);g.fillStyle=sida==='se'?'#006aa7':'#c8102e';g.fillRect(x0-2,y0-4,x1-x0+4,y1-y0+8);
+ g.fillStyle=sida==='se'?'#fecc00':'#ffffff';g.fillRect(x1-13,y0-4,4.5,y1-y0+8);g.fillRect(x0-2,(y0+y1)/2-2.3+v*.6,x1-x0+4,4.6);g.restore();
+ g.strokeStyle='#1a1208';g.lineWidth=1.6;g.stroke(kant)}
+function armeBild(sida,f){
+ const S=120,sil=document.createElement('canvas');sil.width=sil.height=S;const g=sil.getContext('2d');
+ g.translate(10,10);g.fillStyle=g.strokeStyle='#fff';g.lineCap=g.lineJoin='round';ryttarForm(g,f);
+ const farg=col=>{const t=document.createElement('canvas');t.width=t.height=S;const x=t.getContext('2d');x.drawImage(sil,0,0);x.globalCompositeOperation='source-in';x.fillStyle=col;x.fillRect(0,0,S,S);return t};
+ const c=document.createElement('canvas');c.width=c.height=S;const x=c.getContext('2d');
+ const mork=farg('#1a1208');for(let a=0;a<8;a++)x.drawImage(mork,Math.cos(a*Math.PI/4)*2.4,Math.sin(a*Math.PI/4)*2.4);
+ x.drawImage(farg('#f6ead2'),0,0);
+ x.translate(10,10);flagga(x,sida,f);
+ return c.toDataURL()}
+
+/* Tärning som liten bild */
+function tarning(n,col){const P={1:[[2,2]],2:[[1,1],[3,3]],3:[[1,1],[2,2],[3,3]],4:[[1,1],[3,1],[1,3],[3,3]],5:[[1,1],[3,1],[2,2],[1,3],[3,3]],6:[[1,1],[3,1],[1,2],[3,2],[1,3],[3,3]]}[n];
+ return `<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="5" fill="#f6ead2" stroke="${col}" stroke-width="2"/>${P.map(([a,b])=>`<circle cx="${a*6}" cy="${b*6}" r="2.2" fill="#1a1208"/>`).join('')}</svg>`}
+const tarningar=man=>Math.max(1,Math.min(20,Math.round(man/1000)));
+const runda=x=>Math.round(x/100)*100;
+
+let hOn=false,hKlar=false,ARM=[],valdA=null,upptagen=false,armeKlickTid=0,hSparat=null;
+const BILD={};
+function hSkapa(){
+ ARM.forEach(a=>a.m&&a.m.remove());
+ ARM=ARMEER.map(([namn,sida,man,pos,text],i)=>{
+  const el=document.createElement('div');el.className='arme';el.style.setProperty('--g',SIDA[sida].glod);
+  el.innerHTML=`<img alt="" draggable="false"><span></span>`;
+  const a={i,namn,sida,man,start:man,pos:pos.slice(),hem:pos.slice(),text,el,f:0,vanster:sida==='dk',borta:false};
+  el.title=namn;
+  el.addEventListener('click',ev=>{ev.stopPropagation();armeKlickTid=performance.now();armeKlick(a)});
+  a.m=new maplibregl.Marker({element:el}).setLngLat(a.pos);if(hOn)a.m.addTo(map);
+  return a});
+ valdA=null;upptagen=false;$('strid').style.display='none';hRita()}
+function hRita(){
+ ARM.forEach(a=>{
+  const img=a.el.querySelector('img'),w=Math.round(52+Math.min(a.man,12000)/12000*28);
+  img.src=BILD[a.sida+a.f];img.style.width=img.style.height=w+'px';img.style.transform=a.vanster?'scaleX(-1)':'';
+  a.el.querySelector('span').textContent=f(a.man)+' man';a.el.classList.toggle('sel',a===valdA);
+  a.el.style.display=a.borta||!hOn?'none':'';a.m.setLngLat(a.pos)});
+ $('alist').innerHTML=['se','dk'].map(s=>`<p class="hint" style="margin-top:8px"><b style="color:var(--text)">${SIDA[s].namn}</b></p>`+
+  ARM.filter(a=>a.sida===s).map(a=>`<button class="ar${a===valdA?' sel':''}${a.borta?' borta':''}" data-i="${a.i}"><span class="fl ${s}"></span><span class="nm">${a.namn}</span><small>${a.borta?'besegrad':f(a.man)+' · '+tarningar(a.man)+' tärn.'}</small></button>`).join('')).join('');
+ const kvar=s=>ARM.filter(a=>a.sida===s&&!a.borta).length;
+ $('hhint').textContent=!kvar('dk')?'Alla danska arméer är besegrade. Skåne är svenskt! Tryck på Börja om för att spela igen.':
+  !kvar('se')?'Alla svenska arméer är besegrade. Danmark tar tillbaka Skåne. Tryck på Börja om.':
+  valdA?`${valdA.namn} är vald. Tryck på en dansk armé för att anfalla, eller på en svensk för att slå ihop.`:
+  'Tryck på en svensk armé och sedan på en dansk för att anfalla. Tryck på en annan svensk armé för att slå ihop dem. Varje 1 000 man ger en tärning.'}
+
+function armeKlick(a){
+ if(upptagen||a.borta)return;
+ if(a.sida==='se'){
+  if(!valdA||valdA===a){valdA=valdA===a?null:a;hRita();return}
+  const fr=valdA;valdA=null;marsch(fr,a.pos,0,()=>{a.man+=fr.man;a.start+=fr.start;fr.borta=true;a.namn=a.namn.replace(/ \(förstärkt\)$/,'')+' (förstärkt)';hRita()});return}
+ if(!valdA){new maplibregl.Popup({offset:30}).setLngLat(a.pos).setHTML(`<b>${a.namn}</b><br>${f(a.man)} man, ${tarningar(a.man)} tärningar<br><span style="color:var(--muted)">${a.text}</span>`).addTo(map);return}
+ const an=valdA;valdA=null;const fran=an.pos.slice();
+ marsch(an,a.pos,4,()=>strid(an,a,fran))}
+
+/* Flytta en armé mot ett mål. kortAv = stanna så många km före målet. */
+function marsch(a,mal,kortAv,klar){
+ upptagen=true;hRita();
+ const km=turf.distance(a.pos,mal),bort=Math.max(0,km-kortAv),fr=a.pos.slice(),tid=1200+bort*14,t0=performance.now();
+ a.vanster=mal[0]<a.pos[0];
+ const dest=bort>0?turf.destination(fr,bort,turf.bearing(fr,mal)).geometry.coordinates:fr;
+ (function steg(t){const p=Math.min(1,(t-t0)/tid),q=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+  a.pos=[fr[0]+(dest[0]-fr[0])*q,fr[1]+(dest[1]-fr[1])*q];a.f=p<1?Math.floor(t/180)%2:0;
+  a.el.querySelector('img').src=BILD[a.sida+a.f];a.m.setLngLat(a.pos);
+  if(p<1)requestAnimationFrame(steg);else{upptagen=false;hRita();klar&&klar()}})(t0)}
+
+function strid(an,fo,fran){
+ upptagen=true;const box=$('strid'),na=tarningar(an.man),nf=tarningar(fo.man);
+ const slag=n=>Array.from({length:n},()=>1+Math.floor(Math.random()*6));
+ const rad=(a,t,man)=>`<div class="sida"><b><span class="fl ${a.sida}" style="width:18px;height:12px;border-radius:2px;display:inline-block"></span>${a.namn} · ${f(man)} man · ${t.length} tärningar</b><div class="tar">${t.map(v=>tarning(v,SIDA[a.sida].farg)).join('')}</div><div class="sum">Summa: ${t.reduce((s,v)=>s+v,0)}</div></div>`;
+ box.style.display='block';let n=0;const manA=an.man,manF=fo.man;
+ const rulla=setInterval(()=>{box.innerHTML=`<h3>Strid! ${an.namn} anfaller ${fo.namn}</h3>`+rad(an,slag(na),manA)+rad(fo,slag(nf),manF)+'<div class="res">Tärningarna rullar…</div>';
+  if(++n<12)return;clearInterval(rulla);
+  const ta=slag(na),tf=slag(nf),sa=ta.reduce((s,v)=>s+v,0),sf=tf.reduce((s,v)=>s+v,0);
+  let res,efter;
+  if(sa===sf){an.man=runda(an.man*.9);fo.man=runda(fo.man*.9);res=`Oavgjort, ${sa} mot ${sf}. Båda sidor förlorar folk och svenskarna drar sig tillbaka.`;
+   efter=()=>marsch(an,fran,0)}
+  else{const vinn=sa>sf?an:fo,forl=sa>sf?fo:an,skill=Math.abs(sa-sf);
+   const fForl=Math.min(.75,.25+skill*.02),fVinn=.08+Math.random()*.08;
+   const dodaF=runda(forl.man*fForl),dodaV=runda(vinn.man*fVinn);forl.man-=dodaF;vinn.man-=dodaV;
+   const utplanad=forl.man<400;if(utplanad)forl.borta=true;
+   res=`${SIDA[vinn.sida].namn} vinner med ${Math.max(sa,sf)} mot ${Math.min(sa,sf)}! ${forl.namn} förlorar ${f(dodaF)} man${utplanad?' och är besegrad':''}. ${vinn.namn} förlorar ${f(dodaV)}.`;
+   efter=()=>{if(utplanad){if(vinn===an)marsch(an,fo.pos,0)}
+    else if(forl===an)marsch(an,fran,0);
+    else{const b=turf.bearing(an.pos,fo.pos);marsch(fo,turf.destination(fo.pos,12,b).geometry.coordinates,0,()=>{fo.vanster=fo.pos[0]>an.pos[0];hRita()})}}}
+  box.innerHTML=`<h3>Strid! ${an.namn} anfaller ${fo.namn}</h3>`+rad(an,ta,manA)+rad(fo,tf,manF)+`<div class="res">${res}</div><div class="knapp"><button class="sbtn" id="sok">Ok</button></div>`;
+  hRita();$('sok').onclick=()=>{box.style.display='none';upptagen=false;efter();hRita()}
+ },80)}
+
+/* Kartlager: svensk mark, omstridd mark (randig) och Danmark–Norge */
+function randMonster(){const s=16,c=document.createElement('canvas');c.width=c.height=s;const x=c.getContext('2d');
+ x.fillStyle='#3b82f6';x.fillRect(0,0,s,s);x.strokeStyle='#c8102e';x.lineWidth=5;
+ [-s,0,s].forEach(o=>{x.beginPath();x.moveTo(o,s);x.lineTo(o+s,0);x.stroke()});return x.getImageData(0,0,s,s)}
+const H_LAGER=['h-se','h-om','h-dk','h-dk-line'];
+async function hInit(){
+ hKlar=true;
+ ['se','dk'].forEach(s=>[0,1].forEach(f=>BILD[s+f]=armeBild(s,f)));
+ map.addImage('h-rand',randMonster());
+ map.addSource('h-lsk',{type:'geojson',data:EMPTY});map.addSource('h-dk',{type:'geojson',data:EMPTY});
+ map.addLayer({id:'h-se',type:'fill',source:'h-lsk',filter:['!',['in',['get','namn'],['literal',OMSTRIDD]]],paint:{'fill-color':'#3b82f6','fill-opacity':.28}},'mask');
+ map.addLayer({id:'h-om',type:'fill',source:'h-lsk',filter:['in',['get','namn'],['literal',OMSTRIDD]],paint:{'fill-pattern':'h-rand','fill-opacity':.45}},'mask');
+ map.addLayer({id:'h-dk',type:'fill',source:'h-dk',paint:{'fill-color':'#c8102e','fill-opacity':.32}},'se-glow');
+ map.addLayer({id:'h-dk-line',type:'line',source:'h-dk',paint:{'line-color':'#ff7a88','line-width':1,'line-opacity':.8}},'se-glow');
+ try{const r=await fetch('data/landskap.geojson');const j=await r.json();map.getSource('h-lsk').setData(fc(j.features.filter(x=>x.properties.namn)))}catch(e){}
+ try{const topo=await (await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json')).json();
+  map.getSource('h-dk').setData(fc(topojson.feature(topo,topo.objects.countries).features.filter(x=>['Denmark','Norway'].includes(x.properties.name))))}catch(e){}
+ hSkapa()}
+async function hVisa(on){
+ hOn=on;if(on&&!hKlar)await hInit();
+ H_LAGER.forEach(l=>map.getLayer(l)&&map.setLayoutProperty(l,'visibility',on?'visible':'none'));
+ ARM.forEach(a=>on?a.m.addTo(map):a.m.remove());
+ if(on){ /* släck zoner och landskapsdjur så att kartan blir lättare att läsa. De tänds igen när historien släcks. */
+  hSparat={zon:$('zon').checked,djur:$('don').checked};
+  if(hSparat.zon){$('zon').checked=false;$('zon').onchange({target:$('zon')})}
+  if(hSparat.djur&&$('don').onchange){$('don').checked=false;$('don').onchange({target:$('don')})}
+  map.fitBounds([[11.8,55.3],[14.6,56.6]],{padding:{top:20,bottom:50,left:20,right:20},duration:1800,pitch:0,bearing:0})}
+ else{$('strid').style.display='none';upptagen=false;valdA=null;
+  if(hSparat){if(hSparat.zon){$('zon').checked=true;$('zon').onchange({target:$('zon')})}if(hSparat.djur&&$('don').onchange){$('don').checked=true;$('don').onchange({target:$('don')})}}}
+ hRita()}
+let kartaKlar=false;map.on('load',()=>{kartaKlar=true;if($('hon').checked)hVisa(true)});
+$('hon').onchange=e=>{if(kartaKlar)hVisa(e.target.checked)};
+$('hreset').onclick=()=>{if(hKlar)hSkapa()};
+$('alist').onclick=e=>{const b=e.target.closest('button');if(!b)return;const a=ARM[b.dataset.i];if(a.borta)return;
+ map.easeTo({center:a.pos,zoom:Math.max(map.getZoom(),7.5),duration:1200});armeKlick(a)};
 
 </script>
 </body>
